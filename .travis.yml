@@ -1,0 +1,3 @@
+language: go
+install: true
+script: hack/verify-codegen.sh
