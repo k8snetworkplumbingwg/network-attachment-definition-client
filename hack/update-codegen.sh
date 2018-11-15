@@ -11,3 +11,6 @@ vendor/k8s.io/code-generator/generate-groups.sh all \
   github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/client github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/apis \
   k8s.cni.cncf.io:v1 \
   --go-header-file ${SCRIPT_ROOT}/hack/custom-boilerplate.go.txt
+
+# code-generator <=release-1.12 is not able to handle upper-case GitHub organization names
+git grep -l 'k8snetworkplumbingwg/network-attachment-definition-client' pkg | xargs -r sed -i 's#k8snetworkplumbingwg/network-attachment-definition-client#K8sNetworkPlumbingWG/network-attachment-definition-client#' || true
