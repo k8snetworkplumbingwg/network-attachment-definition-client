@@ -10,12 +10,12 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:4216202f4088a73e2982df875e2f0d1401137bbc248e57391e70547af167a18a"
-  name = "github.com/evanphx/json-patch"
+  digest = "1:b13707423743d41665fd23f0c36b2f37bb49c30e94adb813319c44188a51ba22"
+  name = "github.com/ghodss/yaml"
   packages = ["."]
   pruneopts = ""
-  revision = "72bf35d0ff611848c1dc9df0f976c81192392fa5"
-  version = "v4.1.0"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:70a80170917a15e1ff02faab5f9e716e945e0676e86599ba144d38f96e30c3bf"
@@ -286,7 +286,6 @@
     "apps/v1",
     "apps/v1beta1",
     "apps/v1beta2",
-    "auditregistration/v1alpha1",
     "authentication/v1",
     "authentication/v1beta1",
     "authorization/v1",
@@ -318,8 +317,8 @@
   revision = "b799cb063522995aa05eddf298303250d130c144"
 
 [[projects]]
-  branch = "master"
-  digest = "1:cebe5f04ee0890c78c57a957e9d69892cebe60ccda4d1001d9f759a70b1e1bd1"
+  branch = "release-1.12"
+  digest = "1:5899da40e41bcc8c1df101b72954096bba9d85b763bc17efc846062ccc111c7b"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/errors",
@@ -366,11 +365,11 @@
     "third_party/forked/golang/reflect",
   ]
   pruneopts = ""
-  revision = "2a7c9300402896b3c073f2f47df85527c94f83a0"
+  revision = "f71dbbc36e126f5a371b85f6cca96bc8c57db2b6"
 
 [[projects]]
-  branch = "master"
-  digest = "1:2457357f53fdfeaf96dc5da0a6fbb4cdf97b5ca1df67931e66585a40a57244de"
+  branch = "release-9.0"
+  digest = "1:77bf3d9f18ec82e08ac6c4c7e2d9d1a2ef8d16b25d3ff72fcefcf9256d751573"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -402,11 +401,11 @@
     "util/retry",
   ]
   pruneopts = ""
-  revision = "9bea17718df8234c2556ffc1ea7416c13effc844"
+  revision = "13596e875accbd333e0b5bd5fd9462185acd9958"
 
 [[projects]]
-  branch = "master"
-  digest = "1:fff3d5b966cc9ef97041b861446e9d00224de41872393b82a9eb62e04894dfca"
+  branch = "release-1.12"
+  digest = "1:e6fffdf0dfeb0d189a7c6d735e76e7564685d3b6513f8b19d3651191cb6b084b"
   name = "k8s.io/code-generator"
   packages = [
     "cmd/client-gen",
@@ -420,7 +419,7 @@
     "pkg/util",
   ]
   pruneopts = ""
-  revision = "1ae8250a766a78be82efa54a48139ea3148c9c08"
+  revision = "3dcf91f64f638563e5106f21f50c31fa361c918d"
 
 [[projects]]
   branch = "master"
@@ -451,14 +450,6 @@
   packages = ["pkg/util/proto"]
   pruneopts = ""
   revision = "0317810137be915b9cf888946c6e115c1bfac693"
-
-[[projects]]
-  digest = "1:321081b4a44256715f2b68411d8eda9a17f17ebfe6f0cc61d2cc52d11c08acfa"
-  name = "sigs.k8s.io/yaml"
-  packages = ["."]
-  pruneopts = ""
-  revision = "fd68e9863619f6ec2fdd8625fe1f02e7c877e480"
-  version = "v1.1.0"
 
 [solve-meta]
   analyzer-name = "dep"
