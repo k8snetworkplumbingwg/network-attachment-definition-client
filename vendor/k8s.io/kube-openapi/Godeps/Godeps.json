@@ -7,6 +7,11 @@
 	],
 	"Deps": [
 		{
+		        "ImportPath": "bitbucket.org/ww/goautoneg",
+		        "Comment": "null-5",
+		        "Rev": "75cd24fc2f2c2a2088577d12123ddee5f54e0675"
+		},
+		{
 			"ImportPath": "github.com/NYTimes/gziphandler",
 			"Rev": "56545f4a5d46df9a6648819d1664c3a03a13ffdb"
 		},
@@ -52,10 +57,6 @@
 		{
 			"ImportPath": "github.com/go-openapi/swag",
 			"Rev": "1d0bd113de87027671077d3c71eb3ac5d7dbba72"
-		},
-		{
-			"ImportPath": "github.com/golang/glog",
-			"Rev": "44145f04b68cf362d9c4df2182967c2275eaefed"
 		},
 		{
 			"ImportPath": "github.com/golang/protobuf/proto",
@@ -391,6 +392,10 @@
 		{
 			"ImportPath": "k8s.io/gengo/types",
 			"Rev": "75356185a9af8f0464efa792e2e9508d5b4be83c"
+		},
+		{
+			"ImportPath": "k8s.io/klog",
+			"Rev": "b9b56d5dfc9208f60ea747056670942d8b0afdc8"
 		}
 	]
 }
