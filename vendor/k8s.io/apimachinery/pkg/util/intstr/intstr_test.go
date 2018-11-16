@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"sigs.k8s.io/yaml"
+	"github.com/ghodss/yaml"
 )
 
 func TestFromInt(t *testing.T) {
@@ -172,12 +172,5 @@ func TestGetValueFromIntOrPercent(t *testing.T) {
 		if test.expectVal != value {
 			t.Errorf("expected %v, but got %v", test.expectVal, value)
 		}
-	}
-}
-
-func TestGetValueFromIntOrPercentNil(t *testing.T) {
-	_, err := GetValueFromIntOrPercent(nil, 0, false)
-	if err == nil {
-		t.Errorf("expected error got none")
 	}
 }

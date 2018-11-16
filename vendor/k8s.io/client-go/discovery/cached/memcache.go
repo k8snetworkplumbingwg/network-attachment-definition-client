@@ -44,7 +44,6 @@ type memCacheClient struct {
 	cacheValid             bool
 }
 
-// Error Constants
 var (
 	ErrCacheEmpty    = errors.New("the cache has not been filled yet")
 	ErrCacheNotFound = errors.New("not found")
@@ -68,7 +67,20 @@ func (d *memCacheClient) ServerResourcesForGroupVersion(groupVersion string) (*m
 
 // ServerResources returns the supported resources for all groups and versions.
 func (d *memCacheClient) ServerResources() ([]*metav1.APIResourceList, error) {
-	return discovery.ServerResources(d)
+	apiGroups, err := d.ServerGroups()
+	if err != nil {
+		return nil, err
+	}
+	groupVersions := metav1.ExtractGroupVersions(apiGroups)
+	result := []*metav1.APIResourceList{}
+	for _, groupVersion := range groupVersions {
+		resources, err := d.ServerResourcesForGroupVersion(groupVersion)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, resources)
+	}
+	return result, nil
 }
 
 func (d *memCacheClient) ServerGroups() (*metav1.APIGroupList, error) {
@@ -84,12 +96,18 @@ func (d *memCacheClient) RESTClient() restclient.Interface {
 	return d.delegate.RESTClient()
 }
 
+// TODO: Should this also be cached? The results seem more likely to be
+// inconsistent with ServerGroups and ServerResources given the requirement to
+// actively Invalidate.
 func (d *memCacheClient) ServerPreferredResources() ([]*metav1.APIResourceList, error) {
-	return discovery.ServerPreferredResources(d)
+	return d.delegate.ServerPreferredResources()
 }
 
+// TODO: Should this also be cached? The results seem more likely to be
+// inconsistent with ServerGroups and ServerResources given the requirement to
+// actively Invalidate.
 func (d *memCacheClient) ServerPreferredNamespacedResources() ([]*metav1.APIResourceList, error) {
-	return discovery.ServerPreferredNamespacedResources(d)
+	return d.delegate.ServerPreferredNamespacedResources()
 }
 
 func (d *memCacheClient) ServerVersion() (*version.Info, error) {
