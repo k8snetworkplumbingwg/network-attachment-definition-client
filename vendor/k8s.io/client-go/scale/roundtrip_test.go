@@ -19,7 +19,7 @@ package scale
 import (
 	"testing"
 
-	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
+	"k8s.io/apimachinery/pkg/api/testing/roundtrip"
 )
 
 // NB: this can't be in the scheme package, because importing'
