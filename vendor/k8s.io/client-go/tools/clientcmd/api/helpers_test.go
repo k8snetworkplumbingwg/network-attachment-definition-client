@@ -23,7 +23,7 @@ import (
 	"reflect"
 	"testing"
 
-	"sigs.k8s.io/yaml"
+	"github.com/ghodss/yaml"
 )
 
 func newMergedConfig(certFile, certContent, keyFile, keyContent, caFile, caContent string, t *testing.T) Config {
@@ -229,7 +229,7 @@ func Example_minifyAndShorten() {
 	// clusters:
 	//   cow-cluster:
 	//     LocationOfOrigin: ""
-	//     certificate-authority-data: DATA+OMITTED
+	//     certificate-authority-data: REDACTED
 	//     server: http://cow.org:8080
 	// contexts:
 	//   federal-context:
@@ -276,15 +276,14 @@ func TestShortenSuccess(t *testing.T) {
 	}
 
 	redacted := string(redactedBytes)
-	dataOmitted := string(dataOmittedBytes)
 	if len(mutatingConfig.Clusters) != 2 {
 		t.Errorf("unexpected clusters: %v", mutatingConfig.Clusters)
 	}
 	if !reflect.DeepEqual(startingConfig.Clusters[unchangingCluster], mutatingConfig.Clusters[unchangingCluster]) {
 		t.Errorf("expected %v, got %v", startingConfig.Clusters[unchangingCluster], mutatingConfig.Clusters[unchangingCluster])
 	}
-	if string(mutatingConfig.Clusters[changingCluster].CertificateAuthorityData) != dataOmitted {
-		t.Errorf("expected %v, got %v", dataOmitted, string(mutatingConfig.Clusters[changingCluster].CertificateAuthorityData))
+	if string(mutatingConfig.Clusters[changingCluster].CertificateAuthorityData) != redacted {
+		t.Errorf("expected %v, got %v", redacted, string(mutatingConfig.Clusters[changingCluster].CertificateAuthorityData))
 	}
 
 	if len(mutatingConfig.AuthInfos) != 2 {

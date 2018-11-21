@@ -23,8 +23,8 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/evanphx/json-patch"
+	"github.com/ghodss/yaml"
 	"k8s.io/apimachinery/pkg/util/json"
-	"sigs.k8s.io/yaml"
 )
 
 type FilterNullTestCases struct {
@@ -62,12 +62,12 @@ testCases:
     expectedWithoutNull: {}
   - description: simple map with all non-nil values
     originalObj:
-      nonNilKey1: foo
-      nonNilKey2: bar
+      nonNilKey: foo
+      nonNilKey: bar
     expectedWithNull: {}
     expectedWithoutNull:
-      nonNilKey1: foo
-      nonNilKey2: bar
+      nonNilKey: foo
+      nonNilKey: bar
   - description: nested map
     originalObj:
       mapKey:
@@ -88,52 +88,19 @@ testCases:
       mapKey:
         nilKey1: null
         nilKey2: null
-    expectedWithoutNull: {}
+    expectedWithoutNull:
+      mapKey: {}
   - description: nested map that all subkeys are non-nil
     originalObj:
       mapKey:
-        nonNilKey1: foo
-        nonNilKey2: bar
-    expectedWithNull: {}
-    expectedWithoutNull:
-      mapKey:
-        nonNilKey1: foo
-        nonNilKey2: bar
-  - description: explicitly empty map as value
-    originalObj:
-      mapKey: {}
-    expectedWithNull: {}
-    expectedWithoutNull:
-      mapKey: {}
-  - description: explicitly empty nested map
-    originalObj:
-      mapKey:
-        nonNilKey: {}
-    expectedWithNull: {}
-    expectedWithoutNull:
-      mapKey:
-        nonNilKey: {}
-  - description: multiple expliclty empty nested maps
-    originalObj:
-      mapKey:
-        nonNilKey1: {}
-        nonNilKey2: {}
-    expectedWithNull: {}
-    expectedWithoutNull:
-      mapKey:
-        nonNilKey1: {}
-        nonNilKey2: {}
-  - description: nested map with non-null value as empty map
-    originalObj:
-      mapKey:
-        nonNilKey: {}
-        nilKey: null
+        nonNilKey: foo
+        nonNilKey: bar
     expectedWithNull:
-      mapKey:
-        nilKey: null
+      mapKey: {}
     expectedWithoutNull:
       mapKey:
-        nonNilKey: {}
+        nonNilKey: foo
+        nonNilKey: bar
   - description: empty list
     originalObj:
       listKey: []

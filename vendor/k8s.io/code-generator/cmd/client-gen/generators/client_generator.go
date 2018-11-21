@@ -32,7 +32,7 @@ import (
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
 
-	"k8s.io/klog"
+	"github.com/golang/glog"
 )
 
 // NameSystems returns the name system used by the generators in this package.
@@ -44,10 +44,10 @@ func NameSystems() namer.NameSystems {
 
 	publicNamer := &ExceptionNamer{
 		Exceptions: map[string]string{
-			// these exceptions are used to deconflict the generated code
-			// you can put your fully qualified package like
-			// to generate a name that doesn't conflict with your group.
-			// "k8s.io/apis/events/v1beta1.Event": "EventResource"
+		// these exceptions are used to deconflict the generated code
+		// you can put your fully qualified package like
+		// to generate a name that doesn't conflict with your group.
+		// "k8s.io/apis/events/v1beta1.Event": "EventResource"
 		},
 		KeyFunc: func(t *types.Type) string {
 			return t.Name.Package + "." + t.Name.Name
@@ -56,10 +56,10 @@ func NameSystems() namer.NameSystems {
 	}
 	privateNamer := &ExceptionNamer{
 		Exceptions: map[string]string{
-			// these exceptions are used to deconflict the generated code
-			// you can put your fully qualified package like
-			// to generate a name that doesn't conflict with your group.
-			// "k8s.io/apis/events/v1beta1.Event": "eventResource"
+		// these exceptions are used to deconflict the generated code
+		// you can put your fully qualified package like
+		// to generate a name that doesn't conflict with your group.
+		// "k8s.io/apis/events/v1beta1.Event": "eventResource"
 		},
 		KeyFunc: func(t *types.Type) string {
 			return t.Name.Package + "." + t.Name.Name
@@ -68,10 +68,10 @@ func NameSystems() namer.NameSystems {
 	}
 	publicPluralNamer := &ExceptionNamer{
 		Exceptions: map[string]string{
-			// these exceptions are used to deconflict the generated code
-			// you can put your fully qualified package like
-			// to generate a name that doesn't conflict with your group.
-			// "k8s.io/apis/events/v1beta1.Event": "EventResource"
+		// these exceptions are used to deconflict the generated code
+		// you can put your fully qualified package like
+		// to generate a name that doesn't conflict with your group.
+		// "k8s.io/apis/events/v1beta1.Event": "EventResource"
 		},
 		KeyFunc: func(t *types.Type) string {
 			return t.Name.Package + "." + t.Name.Name
@@ -130,7 +130,7 @@ func DefaultNameSystem() string {
 }
 
 func packageForGroup(gv clientgentypes.GroupVersion, typeList []*types.Type, clientsetPackage string, groupPackageName string, groupGoName string, apiPath string, srcTreePath string, inputPackage string, boilerplate []byte) generator.Package {
-	groupVersionClientPackage := filepath.Join(clientsetPackage, "typed", strings.ToLower(groupPackageName), strings.ToLower(gv.Version.NonEmpty()))
+	groupVersionClientPackage := strings.ToLower(filepath.Join(clientsetPackage, "typed", groupPackageName, gv.Version.NonEmpty()))
 	return &generator.DefaultPackage{
 		PackageName: strings.ToLower(gv.Version.NonEmpty()),
 		PackagePath: groupVersionClientPackage,
@@ -318,12 +318,12 @@ func applyGroupOverrides(universe types.Universe, customArgs *clientgenargs.Cust
 func Packages(context *generator.Context, arguments *args.GeneratorArgs) generator.Packages {
 	boilerplate, err := arguments.LoadGoBoilerplate()
 	if err != nil {
-		klog.Fatalf("Failed loading boilerplate: %v", err)
+		glog.Fatalf("Failed loading boilerplate: %v", err)
 	}
 
 	customArgs, ok := arguments.CustomArgs.(*clientgenargs.CustomArgs)
 	if !ok {
-		klog.Fatalf("cannot convert arguments.CustomArgs to clientgenargs.CustomArgs")
+		glog.Fatalf("cannot convert arguments.CustomArgs to clientgenargs.CustomArgs")
 	}
 	includedTypesOverrides := customArgs.IncludedTypesOverrides
 
