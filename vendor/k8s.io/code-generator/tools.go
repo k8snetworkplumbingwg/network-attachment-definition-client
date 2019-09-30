@@ -1,5 +1,7 @@
+// +build tools
+
 /*
-Copyright 2016 The Kubernetes Authors.
+Copyright 2019 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,19 +16,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package generators
+// This package contains code generation utilities
+// This package imports things required by build scripts, to force `go mod` to see them as dependencies
+package tools
 
 import (
-	"k8s.io/gengo/types"
+	_ "k8s.io/code-generator/cmd/client-gen"
+	_ "k8s.io/code-generator/cmd/deepcopy-gen"
+	_ "k8s.io/code-generator/cmd/defaulter-gen"
+	_ "k8s.io/code-generator/cmd/informer-gen"
+	_ "k8s.io/code-generator/cmd/lister-gen"
 )
-
-// extractTag gets the comment-tags for the key.  If the tag did not exist, it
-// returns the empty string.
-func extractTag(key string, lines []string) string {
-	val, present := types.ExtractCommentTags("+", lines)[key]
-	if !present || len(val) < 1 {
-		return ""
-	}
-
-	return val[0]
-}

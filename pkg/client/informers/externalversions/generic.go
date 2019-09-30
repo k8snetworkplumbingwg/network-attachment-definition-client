@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Kubernetes Authors
+Copyright 2019 The Kubernetes Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=k8s.cni.cncf.io, Version=v1
-	case v1.SchemeGroupVersion.WithResource("networkattachmentdefinitions"):
+	case v1.SchemeGroupVersion.WithResource("network-attachment-definitions"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.K8sCniCncfIo().V1().NetworkAttachmentDefinitions().Informer()}, nil
 
 	}
