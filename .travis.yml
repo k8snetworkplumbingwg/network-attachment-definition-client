@@ -1,4 +1,10 @@
 language: go
-go_import_path: github.com/k8snetworkplumbingwg/network-attachment-definition-client
+
+go:
+  - 1.12.x
+
+go_import_path: github.com/K8sNetworkPlumbingWG/network-attachment-definition-client
 install: true
-script: hack/verify-codegen.sh
+script: 
+  - hack/verify-codegen.sh
+  - go build ./cmd/example/
