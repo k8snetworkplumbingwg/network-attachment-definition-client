@@ -16,6 +16,12 @@ First register the custom resource definition:
 kubectl apply -f artifacts/network-crd.yaml
 ```
 
+For old kubernetes version (<1.16), please use `artifacts/networks-crd-v1beta1.yaml`:
+
+```
+kubectl apply -f artifacts/networks-crd-v1beta1.yaml
+```
+
 Then add an example of the `NetworkAttachmentDefinition` kind:
 
 ```
