@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	clientset "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned"
+	clientset "github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/client/clientset/versioned"
 )
 
 var (
@@ -30,7 +30,7 @@ func main() {
 		glog.Fatalf("Error building example clientset: %v", err)
 	}
 
-	list, err := exampleClient.K8sCniCncfIo().NetworkAttachmentDefinitions("default").List(metav1.ListOptions{})
+	list, err := exampleClient.K8sCniCncfIoV1().NetworkAttachmentDefinitions("default").List(metav1.ListOptions{})
 	if err != nil {
 		glog.Fatalf("Error listing all network attachment definitions: %v", err)
 	}
