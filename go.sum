@@ -48,8 +48,6 @@ github.com/imdario/mergo v0.0.0-20171009183408-7fe0c75c13ab h1:k/Biv+LJL35wkk0Hv
 github.com/imdario/mergo v0.0.0-20171009183408-7fe0c75c13ab/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3 h1:/UewZcckqhvnnS0C6r3Sher2hSEbVmM6Ogpcjen08+Y=
 github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
-github.com/k8snetworkplumbingwg/network-attachment-definition-client v0.0.0-20190930093859-eaeabbaba5be h1:ApunBBe7iA576cnPKczIn/QQSz55qtcOFmTOGLgGnTg=
-github.com/k8snetworkplumbingwg/network-attachment-definition-client v0.0.0-20190930093859-eaeabbaba5be/go.mod h1:b9S5QMGDYh+GhoIlY/2ADELIEWUAyqIn1+k7PLq2NCY=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=

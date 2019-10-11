@@ -16,7 +16,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
 	github.com/imdario/mergo v0.0.0-20171009183408-7fe0c75c13ab // indirect
 	github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3 // indirect
-	github.com/k8snetworkplumbingwg/network-attachment-definition-client v0.0.0-20190930093859-eaeabbaba5be
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/onsi/ginkgo v1.10.1 // indirect
