@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/client/informers/externalversions/internalinterfaces"
-	k8scnicncfio "github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/client/informers/externalversions/k8s.cni.cncf.io"
+	versioned "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/informers/externalversions/internalinterfaces"
+	k8scnicncfio "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/informers/externalversions/k8s.cni.cncf.io"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

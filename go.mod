@@ -1,4 +1,4 @@
-module github.com/K8sNetworkPlumbingWG/network-attachment-definition-client
+module github.com/k8snetworkplumbingwg/network-attachment-definition-client
 
 go 1.12
 
