@@ -7,4 +7,5 @@ go_import_path: github.com/k8snetworkplumbingwg/network-attachment-definition-cl
 install: true
 script: 
   - hack/verify-codegen.sh
+  - go test ./pkg/...
   - go build ./cmd/example/
