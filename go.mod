@@ -3,6 +3,7 @@ module github.com/k8snetworkplumbingwg/network-attachment-definition-client
 go 1.12
 
 require (
+	github.com/containernetworking/cni v0.7.1
 	github.com/emicklei/go-restful v2.10.0+incompatible // indirect
 	github.com/evanphx/json-patch v4.1.0+incompatible // indirect
 	github.com/go-openapi/spec v0.19.3 // indirect
@@ -18,8 +19,8 @@ require (
 	github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
-	github.com/onsi/ginkgo v1.10.1 // indirect
-	github.com/onsi/gomega v1.7.0 // indirect
+	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/gomega v1.7.0
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
@@ -34,7 +35,7 @@ require (
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/inf.v0 v0.9.0 // indirect
 	gopkg.in/yaml.v2 v2.2.3 // indirect
-	k8s.io/api v0.0.0-20181115043458-b799cb063522 // indirect
+	k8s.io/api v0.0.0-20181115043458-b799cb063522
 	k8s.io/apimachinery v0.0.0-20181110190943-2a7c93004028
 	k8s.io/client-go v0.0.0-20181115111358-9bea17718df8
 	k8s.io/code-generator v0.0.0-20181114232248-ae218e241252
