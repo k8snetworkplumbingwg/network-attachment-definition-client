@@ -6,7 +6,7 @@ require (
 	github.com/containernetworking/cni v0.7.1
 	github.com/emicklei/go-restful v2.10.0+incompatible // indirect
 	github.com/evanphx/json-patch v4.1.0+incompatible // indirect
-	github.com/go-openapi/spec v0.19.3 // indirect
+	github.com/go-openapi/spec v0.19.6
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
@@ -16,13 +16,13 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20181110185634-c63ab54fda8f // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
 	github.com/imdario/mergo v0.0.0-20171009183408-7fe0c75c13ab // indirect
-	github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/kr/pty v1.1.5 // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20190927123631-a832865fa7ad // indirect
 	golang.org/x/net v0.0.0-20190930134127-c5a3c61f89f3 // indirect
@@ -34,13 +34,11 @@ require (
 	google.golang.org/appengine v1.3.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/inf.v0 v0.9.0 // indirect
-	gopkg.in/yaml.v2 v2.2.3 // indirect
 	k8s.io/api v0.0.0-20181115043458-b799cb063522
 	k8s.io/apimachinery v0.0.0-20181110190943-2a7c93004028
 	k8s.io/client-go v0.0.0-20181115111358-9bea17718df8
 	k8s.io/code-generator v0.0.0-20181114232248-ae218e241252
 	k8s.io/gengo v0.0.0-20190907103519-ebc107f98eab // indirect
 	k8s.io/klog v1.0.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20181114233023-0317810137be
-	sigs.k8s.io/yaml v1.1.0 // indirect
+	k8s.io/kube-openapi v0.0.0-20191107075043-30be4d16710a
 )

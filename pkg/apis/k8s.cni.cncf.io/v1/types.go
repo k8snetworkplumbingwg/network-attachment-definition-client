@@ -1,15 +1,16 @@
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +genclient
 // +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +resourceName=network-attachment-definitions
-
+// +k8s:openapi-gen=true
 type NetworkAttachmentDefinition struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -17,11 +18,13 @@ type NetworkAttachmentDefinition struct {
 	Spec NetworkAttachmentDefinitionSpec `json:"spec"`
 }
 
+// +k8s:openapi-gen=true
 type NetworkAttachmentDefinitionSpec struct {
 	Config string `json:"config"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
 type NetworkAttachmentDefinitionList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
@@ -31,6 +34,7 @@ type NetworkAttachmentDefinitionList struct {
 
 // DNS contains values interesting for DNS resolvers
 // +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=true
 type DNS struct {
 	Nameservers []string `json:"nameservers,omitempty"`
 	Domain      string   `json:"domain,omitempty"`
@@ -40,6 +44,7 @@ type DNS struct {
 
 // NetworkStatus is for network status annotation for pod
 // +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=true
 type NetworkStatus struct {
 	Name      string   `json:"name"`
 	Interface string   `json:"interface,omitempty"`
@@ -51,6 +56,7 @@ type NetworkStatus struct {
 
 // PortMapEntry for CNI PortMapEntry
 // +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=true
 type PortMapEntry struct {
 	HostPort      int    `json:"hostPort"`
 	ContainerPort int    `json:"containerPort"`
@@ -60,6 +66,7 @@ type PortMapEntry struct {
 
 // BandwidthEntry for CNI BandwidthEntry
 // +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=true
 type BandwidthEntry struct {
 	IngressRate  int `json:"ingressRate"`
 	IngressBurst int `json:"ingressBurst"`
@@ -72,6 +79,7 @@ type BandwidthEntry struct {
 // Network Attachment Selection Annotation as described in section 4.1.2
 // of the CRD specification.
 // +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=true
 type NetworkSelectionElement struct {
 	// Name contains the name of the Network object this element selects
 	Name string `json:"name"`
@@ -110,6 +118,7 @@ const (
 
 // NoK8sNetworkError indicates error, no network in kubernetes
 // +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=true
 type NoK8sNetworkError struct {
 	Message string
 }

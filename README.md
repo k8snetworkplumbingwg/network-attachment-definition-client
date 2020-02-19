@@ -28,3 +28,8 @@ Finally build and run the example:
 go build
 ./example -kubeconfig ~/.kube/config
 ```
+## Generate openapi-spec for network attachment definition CRD:
+```
+./hack/update-openapigen.sh
+go run ./hack/gen-openapi-spec/main.go v1
+```
