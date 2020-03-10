@@ -41,12 +41,13 @@ type DNS struct {
 // NetworkStatus is for network status annotation for pod
 // +k8s:deepcopy-gen=false
 type NetworkStatus struct {
-	Name      string   `json:"name"`
-	Interface string   `json:"interface,omitempty"`
-	IPs       []string `json:"ips,omitempty"`
-	Mac       string   `json:"mac,omitempty"`
-	Default   bool     `json:"default,omitempty"`
-	DNS       DNS      `json:"dns,omitempty"`
+	Name      string                 `json:"name"`
+	Interface string                 `json:"interface,omitempty"`
+	IPs       []string               `json:"ips,omitempty"`
+	Mac       string                 `json:"mac,omitempty"`
+	Default   bool                   `json:"default,omitempty"`
+	DNS       DNS                    `json:"dns,omitempty"`
+	DeviceID  map[string]interface{} `json:"device-identification"`
 }
 
 // PortMapEntry for CNI PortMapEntry

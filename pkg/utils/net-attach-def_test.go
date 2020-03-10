@@ -33,10 +33,10 @@ import (
 
 // EnsureCIDR parses/verify CIDR ip string and convert to net.IPNet
 func EnsureCIDR(cidr string) *net.IPNet {
-    ip, net, err := net.ParseCIDR(cidr)
-    Expect(err).NotTo(HaveOccurred())
-    net.IP = ip
-    return net
+	ip, net, err := net.ParseCIDR(cidr)
+	Expect(err).NotTo(HaveOccurred())
+	net.IP = ip
+	return net
 }
 
 func TestNetworkAttachmentDefinition(t *testing.T) {
@@ -48,10 +48,10 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 
 	It("test convertDNS", func() {
 		cniDNS := cnitypes.DNS{
-			Nameservers: []string{ "aaa", "bbb" },
-			Domain: "testDomain",
-			Search: []string{ "1.example.com", "2.example.com" },
-			Options: []string{ "debug", "inet6" },
+			Nameservers: []string{"aaa", "bbb"},
+			Domain:      "testDomain",
+			Search:      []string{"1.example.com", "2.example.com"},
+			Options:     []string{"debug", "inet6"},
 		}
 
 		v1DNS := convertDNS(cniDNS)
@@ -64,13 +64,13 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 	It("set network status into pod", func() {
 		fakePod := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "fakePod1",
+				Name:      "fakePod1",
 				Namespace: "fakeNamespace1",
 			},
 			Spec: corev1.PodSpec{
 				Containers: []corev1.Container{
 					{
-						Name: "fakeContainer",
+						Name:  "fakeContainer",
 						Image: "fakeImage",
 					},
 				},
@@ -78,21 +78,21 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		}
 		fakeStatus := []v1.NetworkStatus{
 			v1.NetworkStatus{
-				Name: "cbr0",
+				Name:      "cbr0",
 				Interface: "eth0",
-				IPs: []string{ "10.244.1.2" },
-				Mac: "92:79:27:01:7c:ce",
+				IPs:       []string{"10.244.1.2"},
+				Mac:       "92:79:27:01:7c:ce",
 			},
 			v1.NetworkStatus{
-				Name: "test-net-attach-def-1",
+				Name:      "test-net-attach-def-1",
 				Interface: "net1",
-				IPs: []string{ "1.1.1.1" },
-				Mac: "ea:0e:fa:63:95:f9",
+				IPs:       []string{"1.1.1.1"},
+				Mac:       "ea:0e:fa:63:95:f9",
 			},
 		}
 
 		clientSet := fake.NewSimpleClientset(fakePod)
-		pod, err:= clientSet.CoreV1().Pods("fakeNamespace1").Get("fakePod1", metav1.GetOptions{})
+		pod, err := clientSet.CoreV1().Pods("fakeNamespace1").Get("fakePod1", metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		err = SetNetworkStatus(clientSet, pod, fakeStatus)
@@ -108,8 +108,8 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 			CNIVersion: "0.3.1",
 			Interfaces: []*cnicurrent.Interface{
 				&cnicurrent.Interface{
-					Name: "net1",
-					Mac: "92:79:27:01:7c:cf",
+					Name:    "net1",
+					Mac:     "92:79:27:01:7c:cf",
 					Sandbox: "/proc/1123/ns/net",
 				},
 			},
@@ -129,7 +129,39 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		Expect(status.Name).To(Equal("test-net-attach-def"))
 		Expect(status.Interface).To(Equal("net1"))
 		Expect(status.Mac).To(Equal("92:79:27:01:7c:cf"))
-		Expect(status.IPs).To(Equal([]string{ "1.1.1.3", "2001::1" }))
+		Expect(status.IPs).To(Equal([]string{"1.1.1.3", "2001::1"}))
+	})
+
+	It("create network status from cni result and deviceID", func() {
+		cniResult := &cnicurrent.Result{
+			CNIVersion: "0.3.1",
+			Interfaces: []*cnicurrent.Interface{
+				&cnicurrent.Interface{
+					Name:    "net1",
+					Mac:     "92:79:27:01:7c:cf",
+					Sandbox: "/proc/1123/ns/net",
+				},
+			},
+			IPs: []*cnicurrent.IPConfig{
+				{
+					Version: "4",
+					Address: *EnsureCIDR("1.1.1.3/24"),
+				},
+				{
+					Version: "6",
+					Address: *EnsureCIDR("2001::1/64"),
+				},
+			},
+		}
+		deviceID := make(map[string]interface{})
+		deviceID["pci_device"] = "0000:08:02.0"
+		status, err := CreateNetworkStatusWithDeviceID(cniResult, "test-net-attach-def", deviceID, false)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(status.Name).To(Equal("test-net-attach-def"))
+		Expect(status.Interface).To(Equal("net1"))
+		Expect(status.Mac).To(Equal("92:79:27:01:7c:cf"))
+		Expect(status.IPs).To(Equal([]string{"1.1.1.3", "2001::1"}))
+		Expect(status.DeviceID["pci_device"]).To(Equal("0000:08:02.0"))
 	})
 
 	It("parse network selection element in pod", func() {
@@ -140,15 +172,15 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		}]`
 		expectedElement := []*v1.NetworkSelectionElement{
 			&v1.NetworkSelectionElement{
-				Name: "test-net-attach-def",
+				Name:             "test-net-attach-def",
 				InterfaceRequest: "test1",
-				Namespace: "fakeNamespace1",
+				Namespace:        "fakeNamespace1",
 			},
 		}
 
 		fakePod := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "fakePod1",
+				Name:      "fakePod1",
 				Namespace: "fakeNamespace1",
 				Annotations: map[string]string{
 					"k8s.v1.cni.cncf.io/networks": selectionElement,
@@ -157,7 +189,7 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 			Spec: corev1.PodSpec{
 				Containers: []corev1.Container{
 					{
-						Name: "fakeContainer",
+						Name:  "fakeContainer",
 						Image: "fakeImage",
 					},
 				},

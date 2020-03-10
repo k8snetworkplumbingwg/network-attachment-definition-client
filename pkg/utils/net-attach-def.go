@@ -120,8 +120,8 @@ func GetNetworkStatus(pod *corev1.Pod) ([]v1.NetworkStatus, error) {
 	return netStatuses, err
 }
 
-// CreateNetworkStatus create NetworkStatus from CNI result
-func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork bool) (*v1.NetworkStatus, error) {
+// CreateNetworkStatusWithDeviceID create NetworkStatus from CNI result and deviceID
+func CreateNetworkStatusWithDeviceID(r cnitypes.Result, networkName string, deviceID map[string]interface{}, defaultNetwork bool) (*v1.NetworkStatus, error) {
 	netStatus := &v1.NetworkStatus{}
 	netStatus.Name = networkName
 	netStatus.Default = defaultNetwork
@@ -153,7 +153,20 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 	v1dns := convertDNS(result.DNS)
 	netStatus.DNS = *v1dns
 
+	if deviceID != nil && len(deviceID) != 0 {
+		newMap := make(map[string]interface{})
+		for key, value := range deviceID {
+			newMap[key] = value
+		}
+		netStatus.DeviceID = newMap
+	}
+
 	return netStatus, nil
+}
+
+// CreateNetworkStatus create NetworkStatus from CNI result
+func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork bool) (*v1.NetworkStatus, error) {
+	return CreateNetworkStatusWithDeviceID(r, networkName, nil, defaultNetwork)
 }
 
 // ParsePodNetworkAnnotation parses Pod annotation for net-attach-def and get NetworkSelectionElement
