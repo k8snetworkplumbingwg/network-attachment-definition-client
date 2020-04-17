@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 
@@ -30,7 +31,7 @@ func main() {
 		glog.Fatalf("Error building example clientset: %v", err)
 	}
 
-	list, err := exampleClient.K8sCniCncfIoV1().NetworkAttachmentDefinitions("default").List(metav1.ListOptions{})
+	list, err := exampleClient.K8sCniCncfIoV1().NetworkAttachmentDefinitions("default").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		glog.Fatalf("Error listing all network attachment definitions: %v", err)
 	}

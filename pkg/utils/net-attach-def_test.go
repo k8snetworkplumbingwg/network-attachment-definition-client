@@ -15,6 +15,7 @@
 package utils
 
 import (
+	"context"
 	"net"
 	"testing"
 
@@ -92,7 +93,7 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		}
 
 		clientSet := fake.NewSimpleClientset(fakePod)
-		pod, err:= clientSet.CoreV1().Pods("fakeNamespace1").Get("fakePod1", metav1.GetOptions{})
+		pod, err:= clientSet.CoreV1().Pods("fakeNamespace1").Get(context.TODO(), "fakePod1", metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		err = SetNetworkStatus(clientSet, pod, fakeStatus)
