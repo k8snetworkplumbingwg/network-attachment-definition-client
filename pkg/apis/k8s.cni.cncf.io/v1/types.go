@@ -38,15 +38,53 @@ type DNS struct {
 	Options     []string `json:"options,omitempty"`
 }
 
+// DeviceInfo contains the information of the device associated
+// with this network (if any)
+type DeviceInfo struct {
+	Type      string       `json:"type,omitempty"`
+	Version   string       `json:"version,omitempty"`
+	Pci       *PciDevice   `json:"pci,omitempty"`
+	Vdpa      *VdpaDevice  `json:"vdpa,omitempty"`
+	VhostUser *VhostDevice `json:"vhost-user,omitempty"`
+	Memif     *MemifDevice `json:"memif,omitempty"`
+}
+
+type PciDevice struct {
+	PciAddress   string `json:"pci-address,omitempty"`
+	Vhostnet     string `json:"vhost-net,omitempty"`
+	RdmaDevice   string `json:"rdma-device,omitempty"`
+	PfPciAddress string `json:"pf-pci-address,omitempty"`
+}
+
+type VdpaDevice struct {
+	ParentDevice string `json:"parent-device,omitempty"`
+	Driver       string `json:"driver,omitempty"`
+	Path         string `json:"path,omitempty"`
+	PciAddress   string `json:"pci-address,omitempty"`
+	PfPciAddress string `json:"pf-pci-address,omitempty"`
+}
+
+type VhostDevice struct {
+	Mode string `json:"mode,omitempty"`
+	Path string `json:"path,omitempty"`
+}
+
+type MemifDevice struct {
+	Role string `json:"role,omitempty"`
+	Path string `json:"path,omitempty"`
+	Mode string `json:"mode,omitempty"`
+}
+
 // NetworkStatus is for network status annotation for pod
 // +k8s:deepcopy-gen=false
 type NetworkStatus struct {
-	Name      string   `json:"name"`
-	Interface string   `json:"interface,omitempty"`
-	IPs       []string `json:"ips,omitempty"`
-	Mac       string   `json:"mac,omitempty"`
-	Default   bool     `json:"default,omitempty"`
-	DNS       DNS      `json:"dns,omitempty"`
+	Name       string      `json:"name"`
+	Interface  string      `json:"interface,omitempty"`
+	IPs        []string    `json:"ips,omitempty"`
+	Mac        string      `json:"mac,omitempty"`
+	Default    bool        `json:"default,omitempty"`
+	DNS        DNS         `json:"dns,omitempty"`
+	DeviceInfo *DeviceInfo `json:"device-info,omitempty"`
 }
 
 // PortMapEntry for CNI PortMapEntry
