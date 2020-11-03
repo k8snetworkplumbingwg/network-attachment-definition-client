@@ -125,12 +125,24 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 				},
 			},
 		}
-		status, err := CreateNetworkStatus(cniResult, "test-net-attach-def", false)
+		devInfo := v1.DeviceInfo{
+			Type: "pci",
+			Version: "v1.0.0",
+			Pci: &v1.PciDevice{
+				PciAddress: "0000:01:02.2",
+				PfPciAddress: "0000:01:02.0",
+			},
+		}
+		status, err := CreateNetworkStatus(cniResult, "test-net-attach-def", false, &devInfo)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(status.Name).To(Equal("test-net-attach-def"))
 		Expect(status.Interface).To(Equal("net1"))
 		Expect(status.Mac).To(Equal("92:79:27:01:7c:cf"))
 		Expect(status.IPs).To(Equal([]string{ "1.1.1.3", "2001::1" }))
+		Expect(status.DeviceInfo.Type).To(Equal("pci"))
+		Expect(status.DeviceInfo.Version).To(Equal("v1.0.0"))
+		Expect(status.DeviceInfo.Pci.PciAddress).To(Equal("0000:01:02.2"))
+		Expect(status.DeviceInfo.Pci.PfPciAddress).To(Equal("0000:01:02.0"))
 	})
 
 	It("parse network selection element in pod", func() {
