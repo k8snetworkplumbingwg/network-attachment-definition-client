@@ -38,6 +38,14 @@ type DNS struct {
 	Options     []string `json:"options,omitempty"`
 }
 
+const (
+	DeviceInfoTypePCI       = "pci"
+	DeviceInfoTypeVHostUser = "vhost-user"
+	DeviceInfoTypeMemif     = "memif"
+	DeviceInfoTypeVDPA      = "vdpa"
+	DeviceInfoVersion       = "v0.1.0"
+)
+
 // DeviceInfo contains the information of the device associated
 // with this network (if any)
 type DeviceInfo struct {
@@ -64,10 +72,23 @@ type VdpaDevice struct {
 	PfPciAddress string `json:"pf-pci-address,omitempty"`
 }
 
+const (
+	VhostDeviceModeClient = "client"
+	VhostDeviceModeServer = "server"
+)
+
 type VhostDevice struct {
 	Mode string `json:"mode,omitempty"`
 	Path string `json:"path,omitempty"`
 }
+
+const (
+	MemifDeviceRoleMaster   = "master"
+	MemitDeviceRoleSlave    = "slave"
+	MemifDeviceModeEthernet = "ethernet"
+	MemitDeviceModeIP       = "ip"
+	MemitDeviceModePunt     = "punt"
+)
 
 type MemifDevice struct {
 	Role string `json:"role,omitempty"`
