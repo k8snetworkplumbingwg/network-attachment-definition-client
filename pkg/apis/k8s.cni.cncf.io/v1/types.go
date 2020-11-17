@@ -43,7 +43,7 @@ const (
 	DeviceInfoTypeVHostUser = "vhost-user"
 	DeviceInfoTypeMemif     = "memif"
 	DeviceInfoTypeVDPA      = "vdpa"
-	DeviceInfoVersion       = "v0.1.0"
+	DeviceInfoVersion       = "v1.0.0"
 )
 
 // DeviceInfo contains the information of the device associated
