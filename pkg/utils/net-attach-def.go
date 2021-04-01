@@ -146,7 +146,7 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
 			netStatus.InterfaceSpec = append(netStatus.InterfaceSpec, v1.InterfaceSpec{
 				Gateway: ipconfig.Gateway.String(),
-				Netmask: ipconfig.Address.Mask.String(),
+				Netmask: ipconfig.Address.Network(),
 				IP:      ipconfig.Address.IP.String(),
 			})
 		}
@@ -155,7 +155,7 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
 			netStatus.InterfaceSpec = append(netStatus.InterfaceSpec, v1.InterfaceSpec{
 				Gateway: ipconfig.Gateway.String(),
-				Netmask: ipconfig.Address.Mask.String(),
+				Netmask: ipconfig.Address.Network(),
 				IP:      ipconfig.Address.IP.String(),
 			})
 		}
