@@ -144,10 +144,10 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 	for _, ipconfig := range result.IPs {
 		if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
 			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+			bitMask, _ := ipconfig.Address.Mask.Size()
 			netStatus.InterfaceSpec = append(netStatus.InterfaceSpec, v1.InterfaceSpec{
 				Gateway: ipconfig.Gateway.String(),
-				Netmask: ipconfig.String(),
-				IP:      ipconfig.Address.IP.String(),
+				IP:      ipconfig.Address.IP.String() + "/" + fmt.Sprint(bitMask),
 			})
 		}
 
@@ -155,8 +155,7 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
 			netStatus.InterfaceSpec = append(netStatus.InterfaceSpec, v1.InterfaceSpec{
 				Gateway: ipconfig.Gateway.String(),
-				Netmask: ipconfig.String(),
-				IP:      ipconfig.Address.IP.String(),
+				IP:      ipconfig.Address.IP.String() + "/" + fmt.Sprint(bitMask),,
 			})
 		}
 
