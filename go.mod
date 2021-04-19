@@ -3,7 +3,7 @@ module github.com/k8snetworkplumbingwg/network-attachment-definition-client
 go 1.12
 
 require (
-	github.com/containernetworking/cni v0.7.1
+	github.com/containernetworking/cni v0.8.1
 	github.com/emicklei/go-restful v2.10.0+incompatible // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
