@@ -123,43 +123,46 @@ func GetNetworkStatus(pod *corev1.Pod) ([]v1.NetworkStatus, error) {
 }
 
 // CreateNetworkStatus create NetworkStatus from CNI result
-func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork bool, dev *v1.DeviceInfo) (*v1.NetworkStatus, error) {
-	netStatus := &v1.NetworkStatus{}
-	netStatus.Name = networkName
-	netStatus.Default = defaultNetwork
+func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork bool, dev *v1.DeviceInfo) ([]*v1.NetworkStatus, error) {
+	netStatuses := make([]*v1.NetworkStatus, 0)
 
 	// Convert whatever the IPAM result was into the current Result type
 	result, err := current.NewResultFromResult(r)
 	if err != nil {
-		return netStatus, fmt.Errorf("error convert the type.Result to current.Result: %v", err)
-	}
-
-	for _, ifs := range result.Interfaces {
-		// Only pod interfaces can have sandbox information
-		if ifs.Sandbox != "" {
-			netStatus.Interface = ifs.Name
-			netStatus.Mac = ifs.Mac
-		}
-	}
-
-	for _, ipconfig := range result.IPs {
-		if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
-			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
-		}
-
-		if ipconfig.Version == "6" && ipconfig.Address.IP.To16() != nil {
-			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
-		}
+		return netStatuses, fmt.Errorf("error convert the type.Result to current.Result: %v", err)
 	}
 
 	v1dns := convertDNS(result.DNS)
-	netStatus.DNS = *v1dns
+	for ifIdx, ifs := range result.Interfaces {
+		netStatus := &v1.NetworkStatus{}
+		netStatus.Name = networkName
+		netStatus.Default = defaultNetwork
+		// Only pod interfaces can have sandbox information
+		if ifs.Sandbox == "" {
+			netStatus.Interface = ifs.Name
+			netStatus.Mac = ifs.Mac
+		}
 
-	if dev != nil {
-		netStatus.DeviceInfo = dev
+		for _, ipconfig := range result.IPs {
+			ipIfPtr := ipconfig.Interface
+			if ipIfPtr == nil || *ipIfPtr == ifIdx {
+				if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
+					netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+				}
+
+				if ipconfig.Version == "6" && ipconfig.Address.IP.To16() != nil {
+					netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+				}
+			}
+		}
+		netStatus.DNS = *v1dns
+		if dev != nil {
+			netStatus.DeviceInfo = dev
+		}
+		netStatuses = append(netStatuses, netStatus)
 	}
 
-	return netStatus, nil
+	return netStatuses, nil
 }
 
 // ParsePodNetworkAnnotation parses Pod annotation for net-attach-def and get NetworkSelectionElement
