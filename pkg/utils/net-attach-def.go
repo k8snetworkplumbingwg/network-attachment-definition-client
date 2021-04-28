@@ -133,26 +133,30 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 	}
 
 	v1dns := convertDNS(result.DNS)
+	ifIPsMap := getIfIPsMap(result.IPs)
 	for ifIdx, ifs := range result.Interfaces {
 		netStatus := &v1.NetworkStatus{}
 		netStatus.Name = networkName
 		netStatus.Default = defaultNetwork
 		// Only pod interfaces can have sandbox information
-		if ifs.Sandbox == "" {
+		if ifs.Sandbox != "" {
 			netStatus.Interface = ifs.Name
 			netStatus.Mac = ifs.Mac
 		}
+		var (
+			ips    []*current.IPConfig
+			exists bool
+		)
+		if ips, exists = ifIPsMap[ifIdx]; !exists {
+			ips = ifIPsMap[-1]
+		}
+		for _, ipconfig := range ips {
+			if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
+				netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+			}
 
-		for _, ipconfig := range result.IPs {
-			ipIfPtr := ipconfig.Interface
-			if ipIfPtr == nil || *ipIfPtr == ifIdx {
-				if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
-					netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
-				}
-
-				if ipconfig.Version == "6" && ipconfig.Address.IP.To16() != nil {
-					netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
-				}
+			if ipconfig.Version == "6" && ipconfig.Address.IP.To16() != nil {
+				netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
 			}
 		}
 		netStatus.DNS = *v1dns
@@ -163,6 +167,22 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 	}
 
 	return netStatuses, nil
+}
+
+func getIfIPsMap(ips []*current.IPConfig) (ifIPsMap map[int][]*current.IPConfig) {
+	ifIPsMap = make(map[int][]*current.IPConfig)
+	for _, ipconfig := range ips {
+		ipIfPtr := ipconfig.Interface
+		ipIfIdx := -1
+		if ipIfPtr != nil {
+			ipIfIdx = *ipIfPtr
+		}
+		if _, exists := ifIPsMap[ipIfIdx]; !exists {
+			ifIPsMap[ipIfIdx] = make([]*current.IPConfig, 0)
+		}
+		ifIPsMap[ipIfIdx] = append(ifIPsMap[ipIfIdx], ipconfig)
+	}
+	return
 }
 
 // ParsePodNetworkAnnotation parses Pod annotation for net-attach-def and get NetworkSelectionElement
