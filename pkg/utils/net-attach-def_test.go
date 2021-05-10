@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Kubernetes Network Plumbing Working Group
+// Copyright (c) 2021 Kubernetes Network Plumbing Working Group
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,6 +99,8 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		err = SetNetworkStatus(clientSet, pod, fakeStatus)
 		Expect(err).NotTo(HaveOccurred())
 
+		pod, err = clientSet.CoreV1().Pods("fakeNamespace1").Get(context.TODO(), "fakePod1", metav1.GetOptions{})
+		Expect(err).NotTo(HaveOccurred())
 		getStatuses, err := GetNetworkStatus(pod)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(fakeStatus).To(Equal(getStatuses))
