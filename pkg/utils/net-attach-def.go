@@ -72,7 +72,7 @@ func SetNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, statuses []v
 	return nil
 }
 
-func setPodNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, networkstatus string) (error) {
+func setPodNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, networkstatus string) error {
 	if len(pod.Annotations) == 0 {
 		pod.Annotations = make(map[string]string)
 	}
@@ -127,39 +127,77 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 	netStatus := &v1.NetworkStatus{}
 	netStatus.Name = networkName
 	netStatus.Default = defaultNetwork
+	statuses, err := CreateNetworkStatuses(r, networkName, defaultNetwork, dev)
+	if err != nil || len(statuses) == 0 {
+		return netStatus, err
+	}
+	return statuses[0], nil
+}
+
+// CreateNetworkStatuses create NetworkStatuses from CNI result, when it contains multiple container interfaces with ips
+func CreateNetworkStatuses(r cnitypes.Result, networkName string, defaultNetwork bool, dev *v1.DeviceInfo) ([]*v1.NetworkStatus, error) {
+	netStatuses := make([]*v1.NetworkStatus, 0)
 
 	// Convert whatever the IPAM result was into the current Result type
 	result, err := current.NewResultFromResult(r)
 	if err != nil {
-		return netStatus, fmt.Errorf("error convert the type.Result to current.Result: %v", err)
+		return netStatuses, fmt.Errorf("error convert the type.Result to current.Result: %v", err)
 	}
 
-	for _, ifs := range result.Interfaces {
+	v1dns := convertDNS(result.DNS)
+	ifIPsMap := getIfIPsMap(result.IPs)
+	for ifIdx, ifs := range result.Interfaces {
+		netStatus := &v1.NetworkStatus{}
+		netStatus.Name = networkName
+		netStatus.Default = defaultNetwork
 		// Only pod interfaces can have sandbox information
 		if ifs.Sandbox != "" {
 			netStatus.Interface = ifs.Name
 			netStatus.Mac = ifs.Mac
 		}
-	}
-
-	for _, ipconfig := range result.IPs {
-		if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
-			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+		var (
+			ips    []*current.IPConfig
+			exists bool
+		)
+		if ips, exists = ifIPsMap[ifIdx]; !exists {
+			ips = ifIPsMap[-1]
 		}
+		for _, ipconfig := range ips {
+			if ipconfig.Version == "4" && ipconfig.Address.IP.To4() != nil {
+				netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+			}
 
-		if ipconfig.Version == "6" && ipconfig.Address.IP.To16() != nil {
-			netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+			if ipconfig.Version == "6" && ipconfig.Address.IP.To16() != nil {
+				netStatus.IPs = append(netStatus.IPs, ipconfig.Address.IP.String())
+			}
 		}
+		netStatus.DNS = *v1dns
+		if dev != nil {
+			netStatus.DeviceInfo = dev
+		}
+		if netStatus.Interface == "" && netStatus.DeviceInfo == nil && len(netStatus.IPs) == 0 {
+			continue
+		}
+		netStatuses = append(netStatuses, netStatus)
 	}
 
-	v1dns := convertDNS(result.DNS)
-	netStatus.DNS = *v1dns
+	return netStatuses, nil
+}
 
-	if dev != nil {
-		netStatus.DeviceInfo = dev
+func getIfIPsMap(ips []*current.IPConfig) (ifIPsMap map[int][]*current.IPConfig) {
+	ifIPsMap = make(map[int][]*current.IPConfig)
+	for _, ipconfig := range ips {
+		ipIfPtr := ipconfig.Interface
+		ipIfIdx := -1
+		if ipIfPtr != nil {
+			ipIfIdx = *ipIfPtr
+		}
+		if _, exists := ifIPsMap[ipIfIdx]; !exists {
+			ifIPsMap[ipIfIdx] = make([]*current.IPConfig, 0)
+		}
+		ifIPsMap[ipIfIdx] = append(ifIPsMap[ipIfIdx], ipconfig)
 	}
-
-	return netStatus, nil
+	return
 }
 
 // ParsePodNetworkAnnotation parses Pod annotation for net-attach-def and get NetworkSelectionElement
