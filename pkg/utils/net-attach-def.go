@@ -72,7 +72,7 @@ func SetNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, statuses []v
 	return nil
 }
 
-func setPodNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, networkstatus string) (error) {
+func setPodNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, networkstatus string) error {
 	if len(pod.Annotations) == 0 {
 		pod.Annotations = make(map[string]string)
 	}
@@ -123,7 +123,19 @@ func GetNetworkStatus(pod *corev1.Pod) ([]v1.NetworkStatus, error) {
 }
 
 // CreateNetworkStatus create NetworkStatus from CNI result
-func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork bool, dev *v1.DeviceInfo) ([]*v1.NetworkStatus, error) {
+func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork bool, dev *v1.DeviceInfo) (*v1.NetworkStatus, error) {
+	netStatus := &v1.NetworkStatus{}
+	netStatus.Name = networkName
+	netStatus.Default = defaultNetwork
+	statuses, err := CreateNetworkStatuses(r, networkName, defaultNetwork, dev)
+	if err != nil || len(statuses) == 0 {
+		return netStatus, err
+	}
+	return statuses[0], nil
+}
+
+// CreateNetworkStatuses create NetworkStatuses from CNI result, when it contains multiple container interfaces with ips
+func CreateNetworkStatuses(r cnitypes.Result, networkName string, defaultNetwork bool, dev *v1.DeviceInfo) ([]*v1.NetworkStatus, error) {
 	netStatuses := make([]*v1.NetworkStatus, 0)
 
 	// Convert whatever the IPAM result was into the current Result type
@@ -162,6 +174,9 @@ func CreateNetworkStatus(r cnitypes.Result, networkName string, defaultNetwork b
 		netStatus.DNS = *v1dns
 		if dev != nil {
 			netStatus.DeviceInfo = dev
+		}
+		if netStatus.Interface == "" && netStatus.DeviceInfo == nil && len(netStatus.IPs) == 0 {
+			continue
 		}
 		netStatuses = append(netStatuses, netStatus)
 	}
