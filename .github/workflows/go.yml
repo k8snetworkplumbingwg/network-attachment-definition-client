@@ -22,7 +22,7 @@ jobs:
       run: hack/verify-codegen.sh
 
     - name: Build
-      run: go build -v ./...
+      run: go build -v ./cmd/example/
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v ./pkg/...
