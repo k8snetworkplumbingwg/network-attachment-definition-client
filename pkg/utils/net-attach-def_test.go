@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	cnitypes "github.com/containernetworking/cni/pkg/types"
-	cnicurrent "github.com/containernetworking/cni/pkg/types/current"
+	cni100"github.com/containernetworking/cni/pkg/types/100"
 
 	v1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 
@@ -107,22 +107,20 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 	})
 
 	It("create network status from cni result", func() {
-		cniResult := &cnicurrent.Result{
-			CNIVersion: "0.3.1",
-			Interfaces: []*cnicurrent.Interface{
+		cniResult := &cni100.Result{
+			CNIVersion: "1.0.0",
+			Interfaces: []*cni100.Interface{
 				{
 					Name:    "net1",
 					Mac:     "92:79:27:01:7c:cf",
 					Sandbox: "/proc/1123/ns/net",
 				},
 			},
-			IPs: []*cnicurrent.IPConfig{
+			IPs: []*cni100.IPConfig{
 				{
-					Version: "4",
 					Address: *EnsureCIDR("1.1.1.3/24"),
 				},
 				{
-					Version: "6",
 					Address: *EnsureCIDR("2001::1/64"),
 				},
 			},
