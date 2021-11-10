@@ -156,7 +156,7 @@ type NetworkSelectionElement struct {
 	// the network
 	BandwidthRequest *BandwidthEntry `json:"bandwidth,omitempty"`
 	// CNIArgs contains additional CNI arguments for the network interface
-	CNIArgs *map[string]interface{} `json:"cni-args"`
+	CNIArgs *map[string]interface{} `json:"cni-args,omitempty"`
 	// GatewayRequest contains default route IP address for the pod
 	GatewayRequest []net.IP `json:"default-route,omitempty"`
 }
