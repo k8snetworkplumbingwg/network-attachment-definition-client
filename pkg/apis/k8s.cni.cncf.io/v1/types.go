@@ -106,6 +106,7 @@ type NetworkStatus struct {
 	Default    bool        `json:"default,omitempty"`
 	DNS        DNS         `json:"dns,omitempty"`
 	DeviceInfo *DeviceInfo `json:"device-info,omitempty"`
+	Gateway    []string    `json:"gateway,omitempty"`
 }
 
 // PortMapEntry for CNI PortMapEntry
