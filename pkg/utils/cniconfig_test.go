@@ -20,16 +20,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 	"path/filepath"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
-
-func TestCNIConfig(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "CNI Config")
-}
 
 var _ = Describe("CNI config manipulations", func() {
 	var tmpDir string

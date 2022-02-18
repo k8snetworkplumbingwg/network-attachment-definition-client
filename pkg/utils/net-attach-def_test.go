@@ -17,7 +17,6 @@ package utils
 import (
 	"context"
 	"net"
-	"testing"
 
 	cnitypes "github.com/containernetworking/cni/pkg/types"
 	cni100"github.com/containernetworking/cni/pkg/types/100"
@@ -38,11 +37,6 @@ func EnsureCIDR(cidr string) *net.IPNet {
 	Expect(err).NotTo(HaveOccurred())
 	net.IP = ip
 	return net
-}
-
-func TestNetworkAttachmentDefinition(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Network Attachment Definition utils")
 }
 
 var _ = Describe("Netwok Attachment Definition manipulations", func() {
