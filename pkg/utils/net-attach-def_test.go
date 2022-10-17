@@ -145,10 +145,11 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 			BeforeEach(func() {
 				deviceInfo = &v1.DeviceInfo{
 					Type:    "pci",
-					Version: "v1.0.0",
+					Version: "v1.1.0",
 					Pci: &v1.PciDevice{
-						PciAddress:   "0000:01:02.2",
-						PfPciAddress: "0000:01:02.0",
+						PciAddress:        "0000:01:02.2",
+						PfPciAddress:      "0000:01:02.0",
+						RepresentorDevice: "eth3",
 					},
 				}
 				var err error
@@ -158,9 +159,10 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 
 			It("create network status from cni result", func() {
 				Expect(networkStatus.DeviceInfo.Type).To(Equal("pci"))
-				Expect(networkStatus.DeviceInfo.Version).To(Equal("v1.0.0"))
+				Expect(networkStatus.DeviceInfo.Version).To(Equal("v1.1.0"))
 				Expect(networkStatus.DeviceInfo.Pci.PciAddress).To(Equal("0000:01:02.2"))
 				Expect(networkStatus.DeviceInfo.Pci.PfPciAddress).To(Equal("0000:01:02.0"))
+				Expect(networkStatus.DeviceInfo.Pci.RepresentorDevice).To(Equal("eth3"))
 			})
 		})
 
