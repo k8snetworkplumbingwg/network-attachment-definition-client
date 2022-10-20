@@ -19,7 +19,7 @@ import (
 	"net"
 
 	cnitypes "github.com/containernetworking/cni/pkg/types"
-	cni100"github.com/containernetworking/cni/pkg/types/100"
+	cni100 "github.com/containernetworking/cni/pkg/types/100"
 
 	v1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 
@@ -100,43 +100,123 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		Expect(fakeStatus).To(Equal(getStatuses))
 	})
 
-	It("create network status from cni result", func() {
-		cniResult := &cni100.Result{
-			CNIVersion: "1.0.0",
-			Interfaces: []*cni100.Interface{
-				{
-					Name:    "net1",
-					Mac:     "92:79:27:01:7c:cf",
-					Sandbox: "/proc/1123/ns/net",
+	Context("create network status from cni result", func() {
+		var cniResult *cni100.Result
+		var networkStatus *v1.NetworkStatus
+
+		BeforeEach(func() {
+			cniResult = &cni100.Result{
+				CNIVersion: "1.0.0",
+				Interfaces: []*cni100.Interface{
+					{
+						Name:    "net1",
+						Mac:     "92:79:27:01:7c:cf",
+						Sandbox: "/proc/1123/ns/net",
+					},
 				},
-			},
-			IPs: []*cni100.IPConfig{
-				{
-					Address: *EnsureCIDR("1.1.1.3/24"),
+				IPs: []*cni100.IPConfig{
+					{
+						Address: *EnsureCIDR("1.1.1.3/24"),
+					},
+					{
+						Address: *EnsureCIDR("2001::1/64"),
+					},
 				},
-				{
-					Address: *EnsureCIDR("2001::1/64"),
-				},
-			},
-		}
-		devInfo := v1.DeviceInfo{
-			Type:    "pci",
-			Version: "v1.0.0",
-			Pci: &v1.PciDevice{
-				PciAddress:   "0000:01:02.2",
-				PfPciAddress: "0000:01:02.0",
-			},
-		}
-		status, err := CreateNetworkStatus(cniResult, "test-net-attach-def", false, &devInfo)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(status.Name).To(Equal("test-net-attach-def"))
-		Expect(status.Interface).To(Equal("net1"))
-		Expect(status.Mac).To(Equal("92:79:27:01:7c:cf"))
-		Expect(status.IPs).To(Equal([]string{"1.1.1.3", "2001::1"}))
-		Expect(status.DeviceInfo.Type).To(Equal("pci"))
-		Expect(status.DeviceInfo.Version).To(Equal("v1.0.0"))
-		Expect(status.DeviceInfo.Pci.PciAddress).To(Equal("0000:01:02.2"))
-		Expect(status.DeviceInfo.Pci.PfPciAddress).To(Equal("0000:01:02.0"))
+			}
+			var err error
+			networkStatus, err = CreateNetworkStatus(cniResult, "test-net-attach-def", false, nil)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("create network status from cni result", func() {
+			Expect(networkStatus.Name).To(Equal("test-net-attach-def"))
+			Expect(networkStatus.Interface).To(Equal("net1"))
+			Expect(networkStatus.Mac).To(Equal("92:79:27:01:7c:cf"))
+			Expect(networkStatus.IPs).To(Equal([]string{"1.1.1.3", "2001::1"}))
+		})
+
+		It("the network status do **not** report a gateway", func() {
+			Expect(networkStatus.Gateway).To(BeEmpty())
+		})
+
+		When("DeviceInfo is used as an attribute", func() {
+			var deviceInfo *v1.DeviceInfo
+
+			BeforeEach(func() {
+				deviceInfo = &v1.DeviceInfo{
+					Type:    "pci",
+					Version: "v1.0.0",
+					Pci: &v1.PciDevice{
+						PciAddress:   "0000:01:02.2",
+						PfPciAddress: "0000:01:02.0",
+					},
+				}
+				var err error
+				networkStatus, err = CreateNetworkStatus(cniResult, "test-net-attach-def", false, deviceInfo)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("create network status from cni result", func() {
+				Expect(networkStatus.DeviceInfo.Type).To(Equal("pci"))
+				Expect(networkStatus.DeviceInfo.Version).To(Equal("v1.0.0"))
+				Expect(networkStatus.DeviceInfo.Pci.PciAddress).To(Equal("0000:01:02.2"))
+				Expect(networkStatus.DeviceInfo.Pci.PfPciAddress).To(Equal("0000:01:02.0"))
+			})
+		})
+
+		When("The CNI results features routes with default route", func() {
+			const gatewayIP = "10.10.10.10"
+			BeforeEach(func() {
+				cniResult.Routes = []*cnitypes.Route{
+					{
+						Dst: net.IPNet{
+							IP:   net.IP{0, 0, 0, 0},
+							Mask: net.CIDRMask(0, 0),
+						},
+						GW: net.ParseIP(gatewayIP),
+					},
+				}
+				var err error
+				networkStatus, err = CreateNetworkStatus(cniResult, "test-net-attach-def", false, nil)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("the network status report a gateway", func() {
+				Expect(networkStatus.Gateway).To(ConsistOf(gatewayIP))
+			})
+
+			It("the network status handles multiple default routes", func() {
+				const secondDefaultRoute = "20.20.20.20"
+
+				cniResult.Routes = append(cniResult.Routes, &cnitypes.Route{
+					GW: net.ParseIP(secondDefaultRoute),
+				})
+				networkStatus, err := CreateNetworkStatus(cniResult, "test-net-attach-def", false, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(networkStatus.Gateway).To(ConsistOf(gatewayIP, secondDefaultRoute))
+			})
+		})
+
+		When("The CNI results features routes that are **not** the default route", func() {
+			BeforeEach(func() {
+				cniResult.Routes = []*cnitypes.Route{
+					{
+						Dst: net.IPNet{
+							IP:   net.IP{10, 10, 10, 0},
+							Mask: net.CIDRMask(24, 32),
+						},
+						GW: net.IP{10, 10, 10, 10},
+					},
+				}
+				var err error
+				networkStatus, err = CreateNetworkStatus(cniResult, "test-net-attach-def", false, nil)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("the network status **should not** report a gateway", func() {
+				Expect(networkStatus.Gateway).To(BeEmpty())
+			})
+		})
 	})
 
 	It("parse network selection element in pod", func() {
