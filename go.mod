@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/containernetworking/cni v1.0.1
-	github.com/emicklei/go-restful v2.10.0+incompatible // indirect
+	github.com/emicklei/go-restful v2.16.0+incompatible // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/onsi/ginkgo v1.16.5
