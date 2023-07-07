@@ -17,11 +17,12 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/containernetworking/cni/libcni"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/containernetworking/cni/libcni"
 
 	v1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 )
@@ -189,6 +190,11 @@ func getDPDeviceInfoPath(resourceName string, deviceID string) string {
 		strings.ReplaceAll(resourceName, "/", "-"), strings.ReplaceAll(deviceID, "/", "-")))
 }
 
+// getDPDeviceInfoPath returns the standard Device Plugin directory path
+func getDPDeviceDirectoryPath() string {
+	return filepath.Join(baseDevInfoPath, dpDevInfoSubDir)
+}
+
 // GetCNIDeviceInfoPath returns the standard Device Plugin DevInfo filename
 // The path is fixed but the filename is flexible and determined by the caller.
 func GetCNIDeviceInfoPath(filename string) string {
@@ -199,6 +205,25 @@ func GetCNIDeviceInfoPath(filename string) string {
 // Returns an error if the device information is malformed and (nil, nil) if it does not exist
 func LoadDeviceInfoFromDP(resourceName string, deviceID string) (*v1.DeviceInfo, error) {
 	return loadDeviceInfo(getDPDeviceInfoPath(resourceName, deviceID))
+}
+
+// LoadDeviceInfo loads a DeviceInfo structure from file created by a Device Plugin
+// It uses the deviceID for matching and find the filename to unmarshal
+// Returns an error if the device information is malformed and (nil, nil) if it does not exist
+func LoadDeviceInfo(deviceID string) (*v1.DeviceInfo, error) {
+	entries, err := os.ReadDir(getDPDeviceDirectoryPath())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			if strings.Contains(entry.Name(), deviceID) {
+				return loadDeviceInfo(entry.Name())
+			}
+		}
+	}
+	return nil, nil
 }
 
 // SaveDeviceInfoForDP saves a DeviceInfo structure created by a Device Plugin
