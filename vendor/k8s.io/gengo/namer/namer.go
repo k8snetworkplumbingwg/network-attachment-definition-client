@@ -17,7 +17,9 @@ limitations under the License.
 package namer
 
 import (
+	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"k8s.io/gengo/types"
@@ -246,6 +248,12 @@ func (ns *NameStrategy) Name(t *types.Type) string {
 			"Slice",
 			ns.removePrefixAndSuffix(ns.Name(t.Elem)),
 		}, ns.Suffix)
+	case types.Array:
+		name = ns.Join(ns.Prefix, []string{
+			"Array",
+			ns.removePrefixAndSuffix(fmt.Sprintf("%d", t.Len)),
+			ns.removePrefixAndSuffix(ns.Name(t.Elem)),
+		}, ns.Suffix)
 	case types.Pointer:
 		name = ns.Join(ns.Prefix, []string{
 			"Pointer",
@@ -292,6 +300,7 @@ func (ns *NameStrategy) Name(t *types.Type) string {
 // import. You can implement yourself or use the one in the generation package.
 type ImportTracker interface {
 	AddType(*types.Type)
+	AddSymbol(types.Name)
 	LocalNameOf(packagePath string) string
 	PathOf(localName string) (string, bool)
 	ImportLines() []string
@@ -340,6 +349,9 @@ func (r *rawNamer) Name(t *types.Type) string {
 		name = "map[" + r.Name(t.Key) + "]" + r.Name(t.Elem)
 	case types.Slice:
 		name = "[]" + r.Name(t.Elem)
+	case types.Array:
+		l := strconv.Itoa(int(t.Len))
+		name = "[" + l + "]" + r.Name(t.Elem)
 	case types.Pointer:
 		name = "*" + r.Name(t.Elem)
 	case types.Struct:
