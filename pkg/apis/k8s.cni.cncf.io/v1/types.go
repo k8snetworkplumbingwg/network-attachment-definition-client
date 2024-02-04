@@ -1,12 +1,12 @@
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +genclient
-// +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +resourceName=network-attachment-definitions
 
@@ -14,11 +14,45 @@ type NetworkAttachmentDefinition struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec NetworkAttachmentDefinitionSpec `json:"spec"`
+	Spec   NetworkAttachmentDefinitionSpec   `json:"spec"`
+	Status NetworkAttachmentDefinitionStatus `json:"status,omitempty"`
 }
+
+// StateType contains a valid NetworkAttachmentDefinition state
+type StateType string
+
+const (
+	// PendingState indicates NetworkAttachmentDefinition waiting to reconcile
+	PendingState StateType = "Pending"
+	// PendingObservationMessage is the default message for a
+	// NetworkAttachmentDefinition pending to be reconciled
+	PendingObservationMessage = "NetworkAttachmentDefinition waiting to be reconciled"
+	// SuccessState indicates NetworkAttachmentDefinition successfully reconcile
+	SuccessState StateType = "Success"
+	// FailureState indicates NetworkAttachmentDefinition has failed to reconcile
+	// for one or more reasons
+	FailureState StateType = "Failure"
+)
 
 type NetworkAttachmentDefinitionSpec struct {
 	Config string `json:"config"`
+}
+
+// NetworkAttachmentDefinitionStatus contains information for Status
+type NetworkAttachmentDefinitionStatus struct {
+	// ReconcilerState fields
+	ReconcilerState `json:",inline"`
+}
+
+// ReconcilerState permits to know if NetworkAttachmentDefinition was reconciled
+type ReconcilerState struct {
+	// State is the current state of the reconciliation. The state is updated
+	// during the process. See: State's type.
+	State StateType `json:"state"`
+
+	// Observation provides relative information related to the signature and
+	// state, example if an error happened.
+	Observation string `json:"observation"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
