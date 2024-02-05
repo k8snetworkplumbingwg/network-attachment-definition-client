@@ -1,8 +1,9 @@
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +genclient
@@ -49,12 +50,13 @@ const (
 // DeviceInfo contains the information of the device associated
 // with this network (if any)
 type DeviceInfo struct {
-	Type      string       `json:"type,omitempty"`
-	Version   string       `json:"version,omitempty"`
-	Pci       *PciDevice   `json:"pci,omitempty"`
-	Vdpa      *VdpaDevice  `json:"vdpa,omitempty"`
-	VhostUser *VhostDevice `json:"vhost-user,omitempty"`
-	Memif     *MemifDevice `json:"memif,omitempty"`
+	Type      string        `json:"type,omitempty"`
+	Version   string        `json:"version,omitempty"`
+	Pci       *PciDevice    `json:"pci,omitempty"`
+	Vdpa      *VdpaDevice   `json:"vdpa,omitempty"`
+	VhostUser *VhostDevice  `json:"vhost-user,omitempty"`
+	Memif     *MemifDevice  `json:"memif,omitempty"`
+	Netvsc    *NetvscDevice `json:"netvsc,omitempty"`
 }
 
 type PciDevice struct {
@@ -63,6 +65,11 @@ type PciDevice struct {
 	RdmaDevice        string `json:"rdma-device,omitempty"`
 	PfPciAddress      string `json:"pf-pci-address,omitempty"`
 	RepresentorDevice string `json:"representor-device,omitempty"`
+}
+
+type NetvscDevice struct {
+	Uuid       string `json:"uuid,omitempty"`
+	PciAddress string `json:"pci-address,omitempty"`
 }
 
 type VdpaDevice struct {
