@@ -77,6 +77,7 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 				Interface: "eth0",
 				IPs:       []string{"10.244.1.2"},
 				Mac:       "92:79:27:01:7c:ce",
+				Mtu:       1500,
 			},
 			{
 				Name:      "test-net-attach-def-1",
@@ -112,6 +113,7 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 						Name:    "net1",
 						Mac:     "92:79:27:01:7c:cf",
 						Sandbox: "/proc/1123/ns/net",
+						Mtu:     9000,
 					},
 				},
 				IPs: []*cni100.IPConfig{
@@ -131,6 +133,7 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		It("create network status from cni result", func() {
 			Expect(networkStatus.Name).To(Equal("test-net-attach-def"))
 			Expect(networkStatus.Interface).To(Equal("net1"))
+			Expect(networkStatus.Mtu).To(Equal(9000))
 			Expect(networkStatus.Mac).To(Equal("92:79:27:01:7c:cf"))
 			Expect(networkStatus.IPs).To(Equal([]string{"1.1.1.3", "2001::1"}))
 		})
