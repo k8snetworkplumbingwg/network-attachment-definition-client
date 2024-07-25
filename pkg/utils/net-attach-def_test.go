@@ -224,6 +224,79 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		})
 	})
 
+	Context("create network statuses from CNI result with multiple interfaces", func() {
+		var cniResult *cni100.Result
+		var networkStatuses []*v1.NetworkStatus
+
+		BeforeEach(func() {
+			cniResult = &cni100.Result{
+				CNIVersion: "1.1.0",
+				Interfaces: []*cni100.Interface{
+					{
+						Name:    "example0",
+						Mac:     "00:AA:BB:CC:DD:01",
+						Sandbox: "/path/to/network/namespace",
+						Mtu:     1500,
+					},
+					{
+						Name: "foo",
+						Mac:  "00:AA:BB:CC:DD:33",
+					},
+					{
+						Name:    "example1",
+						Mac:     "00:AA:BB:CC:DD:02",
+						Sandbox: "/path/to/network/namespace",
+						Mtu:     1500,
+					},
+				},
+				IPs: []*cni100.IPConfig{
+					{
+						Address:   *EnsureCIDR("192.0.2.1/24"),
+						Interface: &[]int{0}[0],
+					},
+					{
+						Address:   *EnsureCIDR("192.0.2.2/24"),
+						Interface: &[]int{0}[0],
+					},
+					{
+						Address:   *EnsureCIDR("192.0.2.3/24"),
+						Interface: &[]int{2}[0],
+					},
+				},
+				DNS: cnitypes.DNS{
+					Nameservers: []string{"8.8.8.8", "8.8.4.4"},
+					Search:      []string{"example.com"},
+					Options:     []string{"ndots:2"},
+				},
+			}
+			var err error
+			networkStatuses, err = CreateNetworkStatuses(cniResult, "test-multi-net-attach-def", false, nil)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("creates network statuses for interfaces with sandbox", func() {
+			Expect(networkStatuses).To(HaveLen(2))
+			// Check details for the first returned network status
+			Expect(networkStatuses[0].Name).To(Equal("test-multi-net-attach-def"))
+			Expect(networkStatuses[0].Interface).To(Equal("example0"))
+			Expect(networkStatuses[0].Mtu).To(Equal(1500))
+			Expect(networkStatuses[0].Mac).To(Equal("00:AA:BB:CC:DD:01"))
+			Expect(networkStatuses[0].IPs).To(ConsistOf("192.0.2.1", "192.0.2.2"))
+
+			// Check details for the second returned network status
+			Expect(networkStatuses[1].Interface).To(Equal("example1"))
+			Expect(networkStatuses[1].Mtu).To(Equal(1500))
+			Expect(networkStatuses[1].Mac).To(Equal("00:AA:BB:CC:DD:02"))
+			Expect(networkStatuses[1].IPs).To(ConsistOf("192.0.2.3"))
+		})
+
+		It("excludes interfaces without a sandbox", func() {
+			for _, status := range networkStatuses {
+				Expect(status.Interface).NotTo(Equal("foo"))
+			}
+		})
+	})
+
 	It("parse network selection element in pod", func() {
 		selectionElement := `
 		[{
