@@ -233,14 +233,14 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 				CNIVersion: "1.1.0",
 				Interfaces: []*cni100.Interface{
 					{
+						Name: "foo",
+						Mac:  "00:AA:BB:CC:DD:33",
+					},
+					{
 						Name:    "example0",
 						Mac:     "00:AA:BB:CC:DD:01",
 						Sandbox: "/path/to/network/namespace",
 						Mtu:     1500,
-					},
-					{
-						Name: "foo",
-						Mac:  "00:AA:BB:CC:DD:33",
 					},
 					{
 						Name:    "example1",
@@ -252,11 +252,11 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 				IPs: []*cni100.IPConfig{
 					{
 						Address:   *EnsureCIDR("192.0.2.1/24"),
-						Interface: &[]int{0}[0],
+						Interface: &[]int{1}[0],
 					},
 					{
 						Address:   *EnsureCIDR("192.0.2.2/24"),
-						Interface: &[]int{0}[0],
+						Interface: &[]int{1}[0],
 					},
 					{
 						Address:   *EnsureCIDR("192.0.2.3/24"),
