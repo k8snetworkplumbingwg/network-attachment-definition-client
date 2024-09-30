@@ -337,6 +337,48 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		})
 	})
 
+	Context("create network statuses for a single interface which omits the sandbox info", func() {
+		var cniResult *cni100.Result
+
+		BeforeEach(func() {
+			cniResult = &cni100.Result{
+				CNIVersion: "1.1.0",
+				Interfaces: []*cni100.Interface{
+					{
+						Name: "foo",
+					},
+				},
+				IPs: []*cni100.IPConfig{
+					{
+						Address: *EnsureCIDR("10.244.196.152/32"),
+					},
+					{
+						Address: *EnsureCIDR("fd10:244::c497/128"),
+					},
+				},
+			}
+		})
+
+		It("creates network statuses with a single entry", func() {
+			networkStatuses, err := CreateNetworkStatuses(cniResult, "test-default-net-without-sandbox", true, nil)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(networkStatuses).To(WithTransform(
+				func(status []*v1.NetworkStatus) []*v1.NetworkStatus {
+					for i := range status {
+						status[i].DNS = v1.DNS{}
+					}
+					return status
+				}, ConsistOf(
+					&v1.NetworkStatus{
+						Name:    "test-default-net-without-sandbox",
+						IPs:     []string{"10.244.196.152", "fd10:244::c497"},
+						Default: true,
+					},
+				)))
+		})
+	})
+
 	It("parse network selection element in pod", func() {
 		selectionElement := `
 		[{
