@@ -101,6 +101,62 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		Expect(fakeStatus).To(Equal(getStatuses))
 	})
 
+	It("matches default=true when gateway is present for an interface", func() {
+		// CNI result using cni100.Result format
+		ifone := 1
+		iftwo := 3
+		cniResult := &cni100.Result{
+			CNIVersion: "1.0.0",
+			Interfaces: []*cni100.Interface{
+				{
+					Name: "0xsomething",
+					Mac:  "be:ee:ee:ee:ee:ef",
+				},
+				{
+					Name:    "eth0",
+					Mac:     "b1:aa:aa:aa:a5:ee",
+					Sandbox: "/var/run/netns/cni-309e7579-1b15-f905-5150-2cd232b0dad9",
+				},
+				{
+					Name: "0xotherthing",
+					Mac:  "b0:00:00:00:00:0f",
+				},
+				{
+					Name:    "other-primary",
+					Mac:     "c0:00:00:00:00:01",
+					Sandbox: "/var/run/netns/cni-309e7579-1b15-f905-5150-2cd232b0dad9",
+				},
+			},
+			IPs: []*cni100.IPConfig{
+				{
+					Interface: &ifone,
+					Address:   *EnsureCIDR("10.244.1.6/24"),
+				},
+				{
+					Interface: &iftwo,
+					Address:   *EnsureCIDR("10.20.1.3/24"),
+					Gateway:   net.ParseIP("10.20.1.1"),
+				},
+			},
+		}
+
+		// Call CreateNetworkStatuses with this CNI result
+		networkName := "test-network"
+		defaultNetwork := true
+		deviceInfo := &v1.DeviceInfo{} // mock device info if needed
+
+		networkStatuses, err := CreateNetworkStatuses(cniResult, networkName, defaultNetwork, deviceInfo)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(networkStatuses).To(HaveLen(2)) // expecting 2 statuses for sandboxed interfaces
+
+		// Check that the interface with the gateway is marked as default
+		Expect(networkStatuses[0].Interface).To(Equal("eth0"))
+		Expect(networkStatuses[0].Default).To(BeFalse())
+
+		Expect(networkStatuses[1].Interface).To(Equal("other-primary"))
+		Expect(networkStatuses[1].Default).To(BeTrue()) // other-primary should be default because it has a gateway
+	})
+
 	Context("create network status from cni result", func() {
 		var cniResult *cni100.Result
 		var networkStatus *v1.NetworkStatus
