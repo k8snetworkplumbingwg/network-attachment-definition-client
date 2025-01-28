@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/containernetworking/cni v1.2.0-rc1
-	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/golang/glog v1.2.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.30.0
 	golang.org/x/tools v0.14.0 // indirect
