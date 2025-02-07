@@ -280,6 +280,70 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		})
 	})
 
+	Context("create network statuses from CNI result with multiple interfaces when the IP Interface index isn't set", func() {
+		When("one sandbox interface is specified", func() {
+			It("assigns the IPs to the last sandbox interface specified", func() {
+				cniResult := &cni100.Result{
+					CNIVersion: "1.0.0",
+					Interfaces: []*cni100.Interface{
+						{
+							Name: "foo",
+						},
+						{
+							Name:    "eth0",
+							Mac:     "00:AA:BB:CC:DD:01",
+							Sandbox: "/path/to/network/namespace",
+						},
+					},
+					IPs: []*cni100.IPConfig{
+						{
+							Address: *EnsureCIDR("192.0.2.1/24"),
+						},
+					},
+				}
+				networkStatuses, err := CreateNetworkStatuses(cniResult, "test-multi-net-attach-def", false, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(networkStatuses).To(HaveLen(1))
+				Expect(networkStatuses[0].Interface).To(Equal("eth0"))
+				Expect(networkStatuses[0].IPs).To(ConsistOf("192.0.2.1"))
+			})
+		})
+		When("two sandbox interfaces are specified", func() {
+			It("assigns the IPs to the last sandbox interface specified", func() {
+				cniResult := &cni100.Result{
+					CNIVersion: "1.0.0",
+					Interfaces: []*cni100.Interface{
+						{
+							Name: "foo",
+						},
+						{
+							Name:    "eth0",
+							Mac:     "00:AA:BB:CC:DD:01",
+							Sandbox: "/path/to/network/namespace",
+						},
+						{
+							Name:    "eth1",
+							Mac:     "00:ZZ:BB:CC:DD:01",
+							Sandbox: "/path/to/other/network/namespace",
+						},
+					},
+					IPs: []*cni100.IPConfig{
+						{
+							Address: *EnsureCIDR("192.0.2.1/24"),
+						},
+					},
+				}
+				networkStatuses, err := CreateNetworkStatuses(cniResult, "test-multi-net-attach-def", false, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(networkStatuses).To(HaveLen(2))
+				Expect(networkStatuses[0].Interface).To(Equal("eth0"))
+				Expect(networkStatuses[0].IPs).To(BeEmpty())
+				Expect(networkStatuses[1].Interface).To(Equal("eth1"))
+				Expect(networkStatuses[1].IPs).To(ConsistOf("192.0.2.1"))
+			})
+		})
+	})
+
 	Context("create network statuses from CNI result with multiple interfaces", func() {
 		var cniResult *cni100.Result
 		var networkStatuses []*v1.NetworkStatus
