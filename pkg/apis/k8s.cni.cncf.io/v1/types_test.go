@@ -19,9 +19,14 @@ func TestNetworkSelectionElementUnmarshaller(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			description:   "ip request + IPAMClaims",
-			input:         "{\"name\":\"yo!\",\"ips\":[\"asd\"],\"ipam-claim-reference\":\"woop\"}",
-			expectedError: TooManyIPSources,
+			description: "ip request + IPAMClaims",
+			input:       "{\"name\":\"yo!\",\"ips\":[\"asd\"],\"ipam-claim-reference\":\"woop\"}",
+			expectedOutput: NetworkSelectionElement{
+				Name:               "yo!",
+				IPRequest:          []string{"asd"},
+				IPAMClaimReference: "woop",
+			},
+			expectedError: nil,
 		},
 		{
 			description: "successfully deserialize a simple struct",
