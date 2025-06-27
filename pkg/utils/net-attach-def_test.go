@@ -203,12 +203,14 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 
 			BeforeEach(func() {
 				deviceInfo = &v1.DeviceInfo{
-					Type:    "pci",
-					Version: "v1.1.0",
+					Type:       "pci",
+					Version:    "v1.1.0",
+					HostIFName: "enp0s10v5",
 					Pci: &v1.PciDevice{
 						PciAddress:        "0000:01:02.2",
 						PfPciAddress:      "0000:01:02.0",
 						RepresentorDevice: "eth3",
+						VfId:              "1",
 					},
 				}
 				var err error
@@ -219,9 +221,30 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 			It("create network status from cni result", func() {
 				Expect(networkStatus.DeviceInfo.Type).To(Equal("pci"))
 				Expect(networkStatus.DeviceInfo.Version).To(Equal("v1.1.0"))
+				Expect(networkStatus.DeviceInfo.HostIFName).To(Equal("enp0s10v5"))
 				Expect(networkStatus.DeviceInfo.Pci.PciAddress).To(Equal("0000:01:02.2"))
 				Expect(networkStatus.DeviceInfo.Pci.PfPciAddress).To(Equal("0000:01:02.0"))
 				Expect(networkStatus.DeviceInfo.Pci.RepresentorDevice).To(Equal("eth3"))
+				Expect(networkStatus.DeviceInfo.Pci.VfId).To(Equal("1"))
+			})
+		})
+
+		When("DeviceInfo Used as an attribute, but does not need to have a deviceid", func() {
+			var deviceInfo *v1.DeviceInfo
+
+			BeforeEach(func() {
+				deviceInfo = &v1.DeviceInfo{
+					Type:       "veth",
+					HostIFName: "veth61efac1c",
+				}
+				var err error
+				networkStatus, err = CreateNetworkStatus(cniResult, "test-net-attach-def", false, deviceInfo)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("create network status from cni result", func() {
+				Expect(networkStatus.DeviceInfo.Type).To(Equal("veth"))
+				Expect(networkStatus.DeviceInfo.HostIFName).To(Equal("veth61efac1c"))
 			})
 		})
 
