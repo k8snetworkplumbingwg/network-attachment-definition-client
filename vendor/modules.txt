@@ -321,7 +321,7 @@ k8s.io/api/scheduling/v1beta1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apimachinery v0.29.0 => k8s.io/apimachinery v0.29.0
+# k8s.io/apimachinery v0.34.0 => k8s.io/apimachinery v0.29.0
 ## explicit; go 1.21
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -556,7 +556,7 @@ k8s.io/client-go/util/homedir
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
-# k8s.io/code-generator v0.29.0 => k8s.io/code-generator v0.29.0
+# k8s.io/code-generator v0.34.0 => k8s.io/code-generator v0.29.0
 ## explicit; go 1.21
 k8s.io/code-generator
 k8s.io/code-generator/cmd/applyconfiguration-gen

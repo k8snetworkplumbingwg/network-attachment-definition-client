@@ -27,6 +27,7 @@ kube::codegen::gen_helpers \
 
 kube::codegen::gen_client \
     --with-watch \
+    --with-applyconfig \
     --input-pkg-root github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis \
     --output-pkg-root github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/clients \
     --output-base "$(dirname "${BASH_SOURCE[0]}")/.." \
