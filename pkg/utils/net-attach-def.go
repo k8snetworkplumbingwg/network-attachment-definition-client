@@ -25,12 +25,12 @@ import (
 	cnitypes "github.com/containernetworking/cni/pkg/types"
 	cni100 "github.com/containernetworking/cni/pkg/types/100"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	v1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/retry"
 )
 
 // convertDNS converts CNI's DNS type to client DNS
@@ -74,30 +74,30 @@ func SetNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, statuses []v
 }
 
 func setPodNetworkStatus(client kubernetes.Interface, pod *corev1.Pod, networkstatus string) error {
-	if len(pod.Annotations) == 0 {
-		pod.Annotations = make(map[string]string)
+	// The network-status is an annotation, i.e. it lives in metadata, not in the
+	// pod status. Patch just that annotation rather than doing a full
+	// UpdateStatus of the pod: a PUT to the /status subresource replaces the
+	// whole status and would silently drop status fields owned by other writers
+	// that are not present in our in-memory copy (e.g.
+	// status.resourceClaimStatuses, set by the DRA resource-claim controller),
+	// wedging such pods in Terminating. A strategic-merge patch only touches the
+	// annotation it names and cannot delete anything else, and it needs no
+	// read-modify-write retry loop.
+	patch, err := json.Marshal(map[string]interface{}{
+		"metadata": map[string]interface{}{
+			"annotations": map[string]string{
+				v1.NetworkStatusAnnot: networkstatus,
+			},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to build network-status patch for pod %s/%s: %v", pod.Namespace, pod.Name, err)
 	}
 
-	coreClient := client.CoreV1()
-	var err error
-	name := pod.Name
-	namespace := pod.Namespace
-
-	resultErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		pod, err = coreClient.Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-
-		if len(pod.Annotations) == 0 {
-			pod.Annotations = make(map[string]string)
-		}
-		pod.Annotations[v1.NetworkStatusAnnot] = networkstatus
-		_, err = coreClient.Pods(namespace).UpdateStatus(context.TODO(), pod, metav1.UpdateOptions{})
-		return err
-	})
-	if resultErr != nil {
-		return fmt.Errorf("status update failed for pod %s/%s: %v", pod.Namespace, pod.Name, resultErr)
+	_, err = client.CoreV1().Pods(pod.Namespace).Patch(
+		context.TODO(), pod.Name, types.StrategicMergePatchType, patch, metav1.PatchOptions{})
+	if err != nil {
+		return fmt.Errorf("status update failed for pod %s/%s: %v", pod.Namespace, pod.Name, err)
 	}
 	return nil
 }
