@@ -26,6 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	k8stesting "k8s.io/client-go/testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -99,6 +100,59 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		getStatuses, err := GetNetworkStatus(pod)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(fakeStatus).To(Equal(getStatuses))
+	})
+
+	It("sets network-status via a metadata patch, not a full status update", func() {
+		// Regression test for kubernetes/kubernetes#139772. The network-status
+		// is an annotation (metadata); writing it must NOT issue a full
+		// UpdateStatus PUT of the pod. A PUT replaces the whole /status
+		// subresource and silently drops status fields owned by other writers
+		// that aren't in our in-memory copy -- notably
+		// status.resourceClaimStatuses set by the DRA resource-claim
+		// controller -- which wedges DRA pods in Terminating.
+		//
+		// The fake clientset can't model the apiserver's PUT-drops-unlisted-
+		// fields semantics, so we assert the mechanism instead: the call must
+		// go out as a Patch of the annotation and must never be an update or
+		// updatestatus on pods.
+		fakePod := &corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "fakePod2",
+				Namespace: "fakeNamespace1",
+			},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{{Name: "fakeContainer", Image: "fakeImage"}},
+			},
+		}
+		fakeStatus := []v1.NetworkStatus{
+			{Name: "cbr0", Interface: "eth0", IPs: []string{"10.244.1.2"}, Mac: "92:79:27:01:7c:ce", Mtu: 1500},
+		}
+
+		clientSet := fake.NewSimpleClientset(fakePod)
+		pod, err := clientSet.CoreV1().Pods("fakeNamespace1").Get(context.TODO(), "fakePod2", metav1.GetOptions{})
+		Expect(err).NotTo(HaveOccurred())
+
+		clientSet.ClearActions()
+		err = SetNetworkStatus(clientSet, pod, fakeStatus)
+		Expect(err).NotTo(HaveOccurred())
+
+		var patched bool
+		for _, action := range clientSet.Actions() {
+			if action.GetResource().Resource != "pods" {
+				continue
+			}
+			// Must never replace the whole pod/status.
+			Expect(action.GetVerb()).NotTo(Equal("update"),
+				"network-status must not be written with a full pod/status UpdateStatus (PUT)")
+			if action.GetVerb() == "patch" {
+				patchAction := action.(k8stesting.PatchAction)
+				Expect(patchAction.GetSubresource()).To(BeEmpty(),
+					"the network-status annotation lives in metadata, patch the main resource not /status")
+				Expect(string(patchAction.GetPatch())).To(ContainSubstring(v1.NetworkStatusAnnot))
+				patched = true
+			}
+		}
+		Expect(patched).To(BeTrue(), "expected a Patch of the network-status annotation")
 	})
 
 	It("matches default=true when gateway is present for an interface", func() {
