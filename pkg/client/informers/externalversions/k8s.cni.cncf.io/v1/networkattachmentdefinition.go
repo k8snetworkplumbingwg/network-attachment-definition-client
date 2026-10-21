@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The Kubernetes Authors
+Copyright 2026 The Kubernetes Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ limitations under the License.
 package v1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	k8scnicncfiov1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	apisk8scnicncfiov1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	versioned "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/informers/externalversions/internalinterfaces"
-	v1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/listers/k8s.cni.cncf.io/v1"
+	k8scnicncfiov1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/listers/k8s.cni.cncf.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // NetworkAttachmentDefinitions.
 type NetworkAttachmentDefinitionInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1.NetworkAttachmentDefinitionLister
+	Lister() k8scnicncfiov1.NetworkAttachmentDefinitionLister
 }
 
 type networkAttachmentDefinitionInformer struct {
@@ -57,21 +57,33 @@ func NewNetworkAttachmentDefinitionInformer(client versioned.Interface, namespac
 // one. This reduces memory footprint and number of connections to the server.
 func NewFilteredNetworkAttachmentDefinitionInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
-		&cache.ListWatch{
+		cache.ToListWatcherWithWatchListSemantics(&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).List(context.TODO(), options)
+				return client.K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).List(context.Background(), options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).Watch(context.TODO(), options)
+				return client.K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).Watch(context.Background(), options)
 			},
-		},
-		&k8scnicncfiov1.NetworkAttachmentDefinition{},
+			ListWithContextFunc: func(ctx context.Context, options metav1.ListOptions) (runtime.Object, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).List(ctx, options)
+			},
+			WatchFuncWithContext: func(ctx context.Context, options metav1.ListOptions) (watch.Interface, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).Watch(ctx, options)
+			},
+		}, client),
+		&apisk8scnicncfiov1.NetworkAttachmentDefinition{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +94,9 @@ func (f *networkAttachmentDefinitionInformer) defaultInformer(client versioned.I
 }
 
 func (f *networkAttachmentDefinitionInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&k8scnicncfiov1.NetworkAttachmentDefinition{}, f.defaultInformer)
+	return f.factory.InformerFor(&apisk8scnicncfiov1.NetworkAttachmentDefinition{}, f.defaultInformer)
 }
 
-func (f *networkAttachmentDefinitionInformer) Lister() v1.NetworkAttachmentDefinitionLister {
-	return v1.NewNetworkAttachmentDefinitionLister(f.Informer().GetIndexer())
+func (f *networkAttachmentDefinitionInformer) Lister() k8scnicncfiov1.NetworkAttachmentDefinitionLister {
+	return k8scnicncfiov1.NewNetworkAttachmentDefinitionLister(f.Informer().GetIndexer())
 }
