@@ -4,8 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-
-	"github.com/golang/glog"
+	"log"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -23,17 +22,17 @@ func main() {
 
 	cfg, err := clientcmd.BuildConfigFromFlags(*master, *kuberconfig)
 	if err != nil {
-		glog.Fatalf("Error building kubeconfig: %v", err)
+		log.Fatalf("Error building kubeconfig: %v", err)
 	}
 
 	exampleClient, err := clientset.NewForConfig(cfg)
 	if err != nil {
-		glog.Fatalf("Error building example clientset: %v", err)
+		log.Fatalf("Error building example clientset: %v", err)
 	}
 
 	list, err := exampleClient.K8sCniCncfIoV1().NetworkAttachmentDefinitions("default").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		glog.Fatalf("Error listing all network attachment definitions: %v", err)
+		log.Fatalf("Error listing all network attachment definitions: %v", err)
 	}
 
 	for _, nad := range list.Items {
