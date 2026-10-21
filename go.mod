@@ -3,7 +3,7 @@ module github.com/k8snetworkplumbingwg/network-attachment-definition-client
 go 1.25.0
 
 require (
-	github.com/containernetworking/cni v1.2.0-rc1
+	github.com/containernetworking/cni v1.2.3
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
