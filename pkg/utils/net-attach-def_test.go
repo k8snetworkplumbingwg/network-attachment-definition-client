@@ -534,4 +534,56 @@ var _ = Describe("Netwok Attachment Definition manipulations", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(elem).To(Equal(expectedElement))
 	})
+
+	Context("resolve the device pool for an attachment", func() {
+		nadWith := func(annotations map[string]string) *v1.NetworkAttachmentDefinition {
+			return &v1.NetworkAttachmentDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "net1", Namespace: "ns1", Annotations: annotations},
+			}
+		}
+
+		It("returns the default without a request", func() {
+			name, err := GetResourceName(nadWith(map[string]string{v1.ResourceNameAnnot: "example.com/foo"}), "")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(name).To(Equal("example.com/foo"))
+		})
+
+		It("returns empty for a network without a device pool", func() {
+			name, err := GetResourceName(nadWith(nil), "")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(name).To(BeEmpty())
+		})
+
+		It("returns an allowed request over the default", func() {
+			nad := nadWith(map[string]string{
+				v1.ResourceNameAnnot:         "example.com/foo",
+				v1.AllowedResourceNamesAnnot: "example.com/baz, example.com/bar",
+			})
+			name, err := GetResourceName(nad, "example.com/bar")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(name).To(Equal("example.com/bar"))
+		})
+
+		It("rejects a request that is not allowed", func() {
+			nad := nadWith(map[string]string{
+				v1.ResourceNameAnnot:         "example.com/foo",
+				v1.AllowedResourceNamesAnnot: "example.com/baz",
+			})
+			_, err := GetResourceName(nad, "example.com/bar")
+			Expect(err).To(MatchError(ContainSubstring(`"example.com/bar" requested by NetworkSelectionElement is not allowed for network ns1/net1`)))
+		})
+
+		It("rejects a request for the default when it is not listed", func() {
+			nad := nadWith(map[string]string{v1.ResourceNameAnnot: "example.com/foo"})
+			_, err := GetResourceName(nad, "example.com/foo")
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("parses resourceName from the network annotation", func() {
+			elems, err := ParseNetworkAnnotation(`[{"name":"net1","resourceName":"example.com/bar"}]`, "ns1")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(elems).To(HaveLen(1))
+			Expect(elems[0].ResourceNameRequest).To(Equal("example.com/bar"))
+		})
+	})
 })

@@ -280,6 +280,29 @@ func isDefaultRoute(route *cnitypes.Route) bool {
 		route.Dst.IP.Equal(net.IPv6zero)
 }
 
+// GetResourceName returns the device pool for an attachment to the network
+// nad, given the resourceName requested by the NetworkSelectionElement, if any.
+//
+// The NetworkAttachmentDefinition's ResourceNameAnnot annotation is the
+// default and is returned when nothing is requested; it may be empty for
+// networks that use no device pool. A requested pool is returned when the
+// NetworkAttachmentDefinition lists it in AllowedResourceNamesAnnot. Any other
+// request is an error.
+func GetResourceName(nad *v1.NetworkAttachmentDefinition, requested string) (string, error) {
+	annotations := nad.GetAnnotations()
+	if requested == "" {
+		return annotations[v1.ResourceNameAnnot], nil
+	}
+	allowed := annotations[v1.AllowedResourceNamesAnnot]
+	for _, name := range strings.Split(allowed, ",") {
+		if strings.TrimSpace(name) == requested {
+			return requested, nil
+		}
+	}
+	return "", fmt.Errorf("resourceName %q requested by NetworkSelectionElement is not allowed for network %s/%s: %s is %q",
+		requested, nad.Namespace, nad.Name, v1.AllowedResourceNamesAnnot, allowed)
+}
+
 // ParsePodNetworkAnnotation parses Pod annotation for net-attach-def and get NetworkSelectionElement
 func ParsePodNetworkAnnotation(pod *corev1.Pod) ([]*v1.NetworkSelectionElement, error) {
 	netAnnot := pod.Annotations[v1.NetworkAttachmentAnnot]

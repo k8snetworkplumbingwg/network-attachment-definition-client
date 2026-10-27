@@ -168,6 +168,11 @@ type NetworkSelectionElement struct {
 	// IPAMClaimReference container the IPAMClaim name where the IPs for this
 	// attachment will be located.
 	IPAMClaimReference string `json:"ipam-claim-reference,omitempty"`
+	// ResourceNameRequest optionally overrides the device pool set by the
+	// NetworkAttachmentDefinition's ResourceNameAnnot annotation for this
+	// attachment. The NetworkAttachmentDefinition must list the requested
+	// pool in its AllowedResourceNamesAnnot annotation.
+	ResourceNameRequest string `json:"resourceName,omitempty"`
 }
 
 func (nse *NetworkSelectionElement) UnmarshalJSON(b []byte) error {
@@ -186,6 +191,12 @@ const (
 	NetworkAttachmentAnnot = "k8s.v1.cni.cncf.io/networks"
 	// Pod annotation for network status
 	NetworkStatusAnnot = "k8s.v1.cni.cncf.io/network-status"
+	// NetworkAttachmentDefinition annotation naming the default device pool
+	// for attachments to the network
+	ResourceNameAnnot = "k8s.v1.cni.cncf.io/resourceName"
+	// NetworkAttachmentDefinition annotation with a comma-separated list of
+	// device pools a NetworkSelectionElement may request instead of the default
+	AllowedResourceNamesAnnot = "k8s.v1.cni.cncf.io/allowedResourceNames"
 )
 
 // NoK8sNetworkError indicates error, no network in kubernetes
