@@ -11,7 +11,9 @@ spec:
     singular: network-attachment-definition
     kind: NetworkAttachmentDefinition
     shortNames:
+    - nad
     - net-attach-def
+    - networkattachmentdefinition
   validation:
     openAPIV3Schema:
       properties:
